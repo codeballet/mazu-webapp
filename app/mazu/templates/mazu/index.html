@@ -1,5 +1,25 @@
 {% extends "mazu/layout.html" %}
 
 {% block content %}
-    <h1>Mazu creates!</h1>
+<div class="flex-container">
+
+    <div>
+        <h1>Skapa med Mazu</h1>
+    </div>
+    
+    <form action="{% url 'mazu:weather' %}" method="post">
+        {% csrf_token %}
+        <div>
+            <input class="button" id="calm_button" type="submit" name="zero" value="Stilla">
+            <input class="button" id="wind_button" type="submit" name="one" value="Blåsigt">
+        </div>
+    </form>
+
+    <form action="{% url 'mazu:message' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input class="button" id="send_button" type="submit" value="Sänd">
+    </form>
+
+</div>
 {% endblock content %}
