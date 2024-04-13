@@ -1,6 +1,9 @@
 # pull official base image
 FROM python:3.12.3-slim-bookworm
 
+# Install curl
+RUN apt-get update && apt-get install -y curl
+
 # set work directory
 WORKDIR /usr/src/app
 

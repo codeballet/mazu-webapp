@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django import forms
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.http.response import JsonResponse
+import json
+import re
+
 
 
 # Forms
@@ -43,10 +47,16 @@ def message(request):
 def weather(request):
     if request.method == 'POST':
         if request.POST.get('zero'):
-            print(f"\nRecived: {request.POST['zero']}\n")
+            print(f"\nReceived: {request.POST['zero']}\n")
         elif request.POST.get('one'):
             print(f"\nReceived: {request.POST['one']}\n")
         # Redirect to new URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
     return HttpResponseRedirect(reverse('mazu:index'))
+
+# API
+def api_mazu(request):
+    return JsonResponse({
+        "message": "Mazu says hello!",
+    }, status=200)
