@@ -1,12 +1,12 @@
 services:
-  backend:
-    build: ./backend
+  speech:
+    build: ./speech
     depends_on:
       web:
         condition: service_healthy
-    command: python backend.py
+    command: python speech.py
     volumes:
-      - ./backend/:/app/
+      - ./speech/:/app/
 
   web:
     build: ./app
@@ -45,7 +45,7 @@ services:
     entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
 
   mazutalk:
-    build: ./ai-talk
-    command: python ai-talk.py
+    build: ./mazutalk
+    command: python mazutalk.py
     volumes:
-      - ./ai-talk/:/app
+      - ./mazutalk/:/app

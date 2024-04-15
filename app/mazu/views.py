@@ -38,6 +38,9 @@ def message(request):
         if form.is_valid():
             # Process the data in form.cleaned_data
             print(f"\nForm Content: {form.cleaned_data['message']}\n")
+
+            # Save form content to database
+            
             
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))

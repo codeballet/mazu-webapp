@@ -331,10 +331,14 @@ def main():
     except:
         print("Error: could not generate sentence")
 
-    # Text To Speech
+    # Save the generated sentence as file
+    # TODO: replace this file-based system with postgres database
 
-    # Get a unique timestamp for filename
+    # Get a unique timestamp for filenaming
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+
+    with open("./sentences/%s.txt" % timestamp, "w") as text_file:
+        text_file.write("%s" % sentence_raw)
 
     # Generate speech and save as mp3 file
     try:
