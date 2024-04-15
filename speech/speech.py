@@ -1,9 +1,20 @@
-import requests
+import datetime
 
-response = requests.get('http://web:8000/api_mazu')
+# Get a unique timestamp for filenaming
+timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
 
-data = response.json()
+# with open("./sentences/%s.txt" % timestamp, "w") as text_file:
+#     text_file.write("%s" % sentence_raw)
 
-print(f"\nResponse from /api_mazu/:\n{data}\n")
-print(type(data))
-print(data.get('message'))
+# # # Generate speech and save as mp3 file
+# try:
+#     print("Text To Speech...")
+#     tts = gTTS(sentence_raw, lang='sv', slow=True)
+# except:
+#     print("Error: could not generate Text To Speech")
+# try:
+#     print("Saving mp3 file")
+#     tts.save('./tts/%s_sv.mp3' % timestamp)
+#     # tts.save('./tts/test.mp3')
+# except:
+#     print("Error: Could not save mp3 file")

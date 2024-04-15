@@ -5,6 +5,7 @@ import json
 import re
 import string
 import datetime
+import requests
 
 import tensorflow as tf
 import keras
@@ -321,37 +322,29 @@ def main():
         print("\nNot training model\n")
 
     # Generate text
+
     try:
-        print("\nGenerating sentence...\n")
-        sentence_list = text_generator.talk(
-            "Meningen med livet är", max_tokens=80, temperature=0.5
-        )
-        sentence_raw = ' '.join(map(str, sentence_list))
-        print(f"\nGenerated sentence:\n{sentence_raw}\n")
+        # Get prompts from the web app
+        response = requests.get('http://web:8000/api_mazu')
+        data = response.json()
+        print(f"Received data:\n{data}")
+
+        # Step through the prompts
+        for prompt in data['prompts']:
+            print(prompt)
+            print(f"\nCreated type: {type(prompt['fields']['created'])}")
+            sentence_list = text_generator.talk(
+                prompt["fields"]["prompt_text"], max_tokens=80, temperature=0.5
+            )
+            sentence_raw = ' '.join(map(str, sentence_list))
+            print(f"\nPrompt text: {prompt['fields']['prompt_text']}")
+            print(f"\nGenerated from database:\n{sentence_raw}\n")
     except:
-        print("Error: could not generate sentence")
+        print("Error: no response to mazutalk from web app")
+
 
     # Save the generated sentence as file
     # TODO: replace this file-based system with postgres database
-
-    # Get a unique timestamp for filenaming
-    timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
-
-    with open("./sentences/%s.txt" % timestamp, "w") as text_file:
-        text_file.write("%s" % sentence_raw)
-
-    # Generate speech and save as mp3 file
-    try:
-        print("Text To Speech...")
-        tts = gTTS(sentence_raw, lang='sv', slow=True)
-    except:
-        print("Error: could not generate Text To Speech")
-    try:
-        print("Saving mp3 file")
-        tts.save('./tts/%s_sv.mp3' % timestamp)
-        # tts.save('./tts/test.mp3')
-    except:
-        print("Error: Could not save mp3 file")
 
 if __name__ == "__main__":
     main()

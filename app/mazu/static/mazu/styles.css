@@ -1,7 +1,10 @@
 body {
-    color: rgb(200,200,200);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background-color: rgb(30,30,30);
+}
+
+h1 {
+    color: rgb(200,200,200);
 }
 
 .flex-container {
@@ -58,7 +61,8 @@ body {
 }
 
 .textfield {
-    font-size: 1.5em;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 1.4em;
     border-radius: 5px;
     background-color: rgb(200, 200, 200);
     margin: 2rem 1rem 0rem 1rem;

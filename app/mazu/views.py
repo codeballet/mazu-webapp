@@ -3,9 +3,13 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http.response import JsonResponse
+from django.core import serializers
+import datetime
+
 import json
 import re
 
+from .models import Prompt
 
 
 # Forms
@@ -39,8 +43,13 @@ def message(request):
             # Process the data in form.cleaned_data
             print(f"\nForm Content: {form.cleaned_data['message']}\n")
 
+            # Get a unique timestamp
+            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+
             # Save form content to database
-            
+            # Add to prompt_text in Prompt model
+            p = Prompt(created = timestamp, prompt_text = form.cleaned_data['message'])
+            p.save()
             
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))
@@ -60,6 +69,11 @@ def weather(request):
 
 # API
 def api_mazu(request):
-    return JsonResponse({
-        "message": "Mazu says hello!",
-    }, status=200)
+    try:
+        data = serializers.serialize("json", Prompt.objects.all().order_by("created"))
+        list = json.loads(data)
+        return JsonResponse({
+            "prompts": list,
+        }, status=200)
+    except:
+        print("\nError: could not acquire and send data from web app database\n")

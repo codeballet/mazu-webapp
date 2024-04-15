@@ -1,9 +1,6 @@
 services:
   speech:
     build: ./speech
-    depends_on:
-      web:
-        condition: service_healthy
     command: python speech.py
     volumes:
       - ./speech/:/app/
@@ -19,7 +16,7 @@ services:
       - ./.env.dev
     healthcheck:
       test: ["CMD", "curl", "-f", "http://web:8000"]
-      interval: 30s
+      interval: 5s
       timeout: 3s
       retries: 5
       start_period: 10s
@@ -46,6 +43,12 @@ services:
 
   mazutalk:
     build: ./mazutalk
+    depends_on:
+      web:
+        condition: service_healthy
     command: python mazutalk.py
     volumes:
       - ./mazutalk/:/app
+
+  # db:
+  #   image: postgres:16.2-alpine
