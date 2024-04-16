@@ -1,7 +1,20 @@
 services:
+  play:
+    build: ./play
+    command: python play.py
+    volumes:
+      - ./play/:/app/
+      
   speech:
     build: ./speech
     command: python speech.py
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - ./speech/:/app/
 
@@ -44,11 +57,29 @@ services:
   mazutalk:
     build: ./mazutalk
     depends_on:
+      db:
+        condition: service_started
       web:
         condition: service_healthy
     command: python mazutalk.py
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - ./mazutalk/:/app
 
-  # db:
-  #   image: postgres:16.2-alpine
+  db:
+    image: postgres:16.2-alpine
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+
+volumes:
+  db:

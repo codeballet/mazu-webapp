@@ -1,4 +1,3 @@
-from gtts import gTTS
 import glob
 import numpy as np
 import json
@@ -6,6 +5,9 @@ import re
 import string
 import datetime
 import requests
+
+from sqlalchemy import create_engine, text
+import time
 
 import tensorflow as tf
 import keras
@@ -29,6 +31,12 @@ BATCH_SIZE = 32
 EPOCHS = 1
 DATASET_REPETITIONS = 1
 TRAIN = False
+
+
+#################
+# Connect to db #
+#################
+engine = create_engine("postgresql+psycopg://postgres:postgres@db/postgres")
 
 
 #############
@@ -321,30 +329,44 @@ def main():
     else:
         print("\nNot training model\n")
 
-    # Generate text
+
+    #################
+    # Generate text #
+    #################
 
     try:
         # Get prompts from the web app
         response = requests.get('http://web:8000/api_mazu')
         data = response.json()
-        print(f"Received data:\n{data}")
 
-        # Step through the prompts
+        # Step through the prompts and generate AI responses
         for prompt in data['prompts']:
-            print(prompt)
-            print(f"\nCreated type: {type(prompt['fields']['created'])}")
+            created = prompt['fields']['created']
+            prompt_text = prompt['fields']['prompt_text']
+            
             sentence_list = text_generator.talk(
-                prompt["fields"]["prompt_text"], max_tokens=80, temperature=0.5
+                prompt_text, max_tokens=MAX_LEN, temperature=0.5
             )
             sentence_raw = ' '.join(map(str, sentence_list))
-            print(f"\nPrompt text: {prompt['fields']['prompt_text']}")
-            print(f"\nGenerated from database:\n{sentence_raw}\n")
+
+            # Save to db
+            with engine.connect() as conn:
+                print("mazutalk ai saving to database")
+
+                # conn.execute(
+                #     text("INSERT INTO speech (created, prompt, sentence) VALUES ('54542', 'something', 'ai text generated');")
+                # )
+
+                conn.execute(
+                    text("INSERT INTO speech (created, prompt, sentence) VALUES (:created, :prompt, :sentence);"), 
+                    [{"created": created, "prompt": prompt_text, "sentence": sentence_raw}],
+                )
+                conn.commit()
+
+
     except:
-        print("Error: no response to mazutalk from web app")
+        print("Error: mazutalk cannot connect to web app or db")
 
-
-    # Save the generated sentence as file
-    # TODO: replace this file-based system with postgres database
-
+    
 if __name__ == "__main__":
     main()
