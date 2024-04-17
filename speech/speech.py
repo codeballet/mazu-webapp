@@ -4,7 +4,7 @@ from gtts import gTTS
 # import datetime
 
 # Timer interval value
-N = 5
+N = 10
 
 print("Speech app started")
 time.sleep(N)
@@ -16,6 +16,7 @@ engine = create_engine("postgresql+psycopg://postgres:postgres@db/postgres")
 # Acquire db data every Nth second
 while True:
     print("Speech app loop")
+    # TODO: only acquire new materials, based on the timestamp of the 'created' field
     with engine.connect() as conn:
         result = conn.execute(text(
             "SELECT * FROM speech;"

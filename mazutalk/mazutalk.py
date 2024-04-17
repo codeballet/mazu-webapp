@@ -334,10 +334,14 @@ def main():
     # Generate text #
     #################
 
+    # Keep looking for new input from the webserver every nth second
+    n = 10
+    # while True:
     try:
         # Get prompts from the web app
         response = requests.get('http://web:8000/api_mazu')
         data = response.json()
+        print(data)
 
         # Step through the prompts and generate AI responses
         for prompt in data['prompts']:
@@ -363,9 +367,10 @@ def main():
                 )
                 conn.commit()
 
-
     except:
         print("Error: mazutalk cannot connect to web app or db")
+
+        # time.sleep(n)
 
     
 if __name__ == "__main__":
