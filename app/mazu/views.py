@@ -47,16 +47,16 @@ def message(request):
             # Process the data in form.cleaned_data
             print(f"\nForm Content: {form.cleaned_data['message']}\n")
 
-            # Get a unique timestamp
-            # timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
-            timestamp = int(datetime.datetime.now().strftime('%d%H%M%S%f'))
-            print(f"Timestamp: {timestamp}, {type(timestamp)}")
+            # # Get a unique timestamp
+            # # timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+            # timestamp = int(datetime.datetime.now().strftime('%d%H%M%S%f'))
+            # print(f"Timestamp: {timestamp}, {type(timestamp)}")
 
             # Save form content to database
             # Add to prompt_text in Prompt model
             try:
-                p = Prompt(created = timestamp, prompt_text = form.cleaned_data['message'])
-                # p = Prompt(prompt_text = form.cleaned_data['message'])
+                # p = Prompt(created = timestamp, prompt_text = form.cleaned_data['message'])
+                p = Prompt(prompt_text = form.cleaned_data['message'])
                 p.save()
             except:
                 raise Http404("Cannot save to database")
@@ -87,27 +87,37 @@ def api_mazu(request):
         # Check if db is empty
         last = Last.objects.all().last()
         if last == None:
-            # db is empty, set current time as a reference value in db
-            timestamp = int(datetime.datetime.now().strftime('%d%H%M%S%f'))
-            l = Last(last_object=timestamp)
+            # # db is empty, set current time as a reference value in db
+            # timestamp = int(datetime.datetime.now().strftime('%d%H%M%S%f'))
+            # l = Last(last_object=timestamp)
+            # l.save()
+            # print(f"api_mazu initiated last_object: {l}")
+
+            # db is empty, set 0 as reference value
+            l = Last(last_object=0)
             l.save()
             print(f"api_mazu initiated last_object: {l}")
+
     except:
         print("api_mazu failed to initiate last_object")
 
+    # Acquire all the new values from db since last check
     try:
-        # Get all the new values from db since last check
-        # First the timestamp for the last acquired prompt
+        # First check the id for the last acquired prompt
         last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
         print(f"last:\n{last}")
     except:
         print("api_mazu failed to aquire the last object")
 
     try:
-        # Then acquire all prompts created after the previously last prompt
-        # But first check if there are any new prompts
-        if Prompt.objects.filter(created__gt=last).exists():
-            data = Prompt.objects.filter(created__gt=last).order_by("created")
+        # # Then acquire all prompts created after the previously last prompt
+        # # But first check if there are any new prompts
+        # if Prompt.objects.filter(created__gt=last).exists():
+        #     data = Prompt.objects.filter(created__gt=last).order_by("created")
+        #     print(f"Acquired new data:\n{data}")
+
+        if Prompt.objects.filter(id__gt=last).exists():
+            data = Prompt.objects.filter(id__gt=last).order_by("id")
             print(f"Acquired new data:\n{data}")
         else:
             # Return an empty list
@@ -120,9 +130,17 @@ def api_mazu(request):
         raise Http404("api_mazu could not acquire prompts from db")
 
     try:
-        # save the new last object's time stamp to db, if there is one
+        # # save the new last object's time stamp to db, if there is one
+        # if len(data) > 0:
+        #     new_last = data.values()[len(data) - 1]["created"]
+        #     print(data.values()[len(data) - 1])
+        #     nl = Last(last_object=new_last)
+        #     nl.save()
+        #     print("Saved new timestamp for last prompt")
+
+        # save the new last object's id to db, if there is one
         if len(data) > 0:
-            new_last = data.values()[len(data) - 1]["created"]
+            new_last = data.values()[len(data) - 1]["id"]
             print(data.values()[len(data) - 1])
             nl = Last(last_object=new_last)
             nl.save()
