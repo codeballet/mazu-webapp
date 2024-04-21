@@ -83,6 +83,8 @@ def conc_data():
 def pad_punctuation(s):
     s = re.sub(f"([{string.punctuation}, '\n'])", r" \1 ", s)
     s = re.sub(" +", " ", s)
+    s = re.sub('"', '', s)
+    s = re.sub(' * ', ' ', s)
     return s
 
 
@@ -330,16 +332,16 @@ def main():
         print("\nNot training model\n")
 
 
-    #################
-    # Generate text #
-    #################
+    ######################
+    # Generate text loop #
+    ######################
 
     print("Mazutalk about to start requests...")
-    time.sleep(3)
+    time.sleep(10)
 
-    # Keep looking for new input from the webserver every nth second
+    # Keep looking for new input from the webserver every Nth second
     # Sleep timer
-    N = 10
+    N = 30
     while True:
         print("Inside mazutalk loop")
         try:
@@ -354,7 +356,6 @@ def main():
                 for prompt in data['prompts']:
                     print(f"prompt:\n{prompt}")
                     creation = int(prompt['pk'])
-                    print(f"creation type: {type(creation)}")
                     prompt_text = prompt['fields']['prompt_text']
                     
                     sentence_list = text_generator.talk(
