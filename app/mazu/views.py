@@ -18,7 +18,7 @@ from .models import Prompt, Last
 class MessageForm(forms.Form):
     message = forms.CharField(
         label='', 
-        max_length=200, 
+        max_length=100, 
         widget=forms.TextInput(
             attrs={
                 'class': 'textfield',
@@ -33,8 +33,12 @@ class MessageForm(forms.Form):
 def index(request):
     form = MessageForm()
 
+    if "prompts" not in request.session:
+        request.session["prompts"] = []
+
     return render(request, 'mazu/index.html', {
         "form": form,
+        "prompts": request.session["prompts"],
     })
 
 def message(request):
@@ -44,12 +48,16 @@ def message(request):
         # Check if form data is valid
         if form.is_valid():
             # Process the data in form.cleaned_data
-            print(f"\nForm Content: {form.cleaned_data['message']}\n")
+            prompt = form.cleaned_data['message']
+            print(f"\nForm Content: {prompt}\n")
+
+            # Store the prompt in the session
+            request.session["prompts"] += [prompt]
 
             # Save form content to database
             # Add to prompt_text in Prompt model
             try:
-                p = Prompt(prompt_text = form.cleaned_data['message'])
+                p = Prompt(prompt_text = prompt)
                 p.save()
             except:
                 raise Http404("Cannot save to database")

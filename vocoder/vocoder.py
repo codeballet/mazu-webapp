@@ -50,9 +50,9 @@ def synthesize(file, number):
     dat = vocoder.encode(sample_rate, audio, f0_method='harvest', is_requiem=True)
 
     # dat = vocoder.scale_pitch(dat, 1.5)
-    dat = vocoder.scale_pitch(dat, 1.2)
+    dat = vocoder.scale_pitch(dat, 1.4)
     # dat = vocoder.scale_duration(dat, 2)
-    dat = vocoder.scale_duration(dat, 1.5)
+    dat = vocoder.scale_duration(dat, 1.4)
 
     dat = vocoder.decode(dat)
     output = dat["out"]

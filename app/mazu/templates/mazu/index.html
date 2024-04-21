@@ -21,5 +21,18 @@
         <input class="button" id="send_button" type="submit" value="Sänd">
     </form>
 
+    <div class="list_title">
+        {% if prompts %}
+            <h3>Mazu hörde dig säga:</h3>
+        {% endif %}
+    </div>
+    <div class="list">
+        {% for prompt in prompts reversed %}
+        <li>{{ prompt }}</li>
+    {% empty %}
+    </div>
+        <h3>Du har inte sagt något än...</h3>
+    {% endfor %}
+
 </div>
 {% endblock content %}

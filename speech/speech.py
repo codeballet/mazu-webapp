@@ -62,10 +62,15 @@ while True:
                 ), [{"last_speech": last_creation}],)
                 conn.commit()
 
+            # Truncate sentence to be shorter
+            sentence_list = sentence.split()
+            sliced_list = sentence_list[:40]
+            short_sentence = ' '.join(sliced_list)
+            
             # Generate speech from text sentences
             try:
                 print(f"Generating Text To Speech from number {creation}")
-                tts = gTTS(sentence, lang='sv', slow=True)
+                tts = gTTS(short_sentence, lang='sv', slow=True)
             except:
                 print("Error: could not generate Text To Speech")
 
