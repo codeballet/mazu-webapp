@@ -1,10 +1,11 @@
 # Mazu Webapp
 
 ## Tips
-### Run commands inside the container
+### Run important commands inside the container
 ```
 docker compose exec web python manage.py makemigrations 
 docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
 ```
 
 ### Beware of ownership!
