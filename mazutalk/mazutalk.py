@@ -341,7 +341,7 @@ def main():
 
     # Keep looking for new input from the webserver every Nth second
     # Sleep timer
-    N = 30
+    N = 5
     while True:
         print("Inside mazutalk loop")
         try:

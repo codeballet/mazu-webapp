@@ -26,7 +26,7 @@ except:
 ################
 
 # Set sleep timer N
-N = 5
+N = 10
 while True:
     # Reset last_creation counter and sentence variables
     last_creation = 0
