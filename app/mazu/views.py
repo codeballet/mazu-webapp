@@ -6,6 +6,9 @@ from django.urls import reverse
 from django.http.response import JsonResponse
 from django.core import serializers
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
 import json
 import re
 
@@ -15,6 +18,31 @@ from .models import Prompt, Last
 #########
 # Forms #
 #########
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label='',
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'textfield',
+                'type': 'text',
+                'placeholder': 'Användarnamn'
+            }
+        )
+    )
+    password = forms.CharField(
+        label='',
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'textfield',
+                'type': 'password',
+                'placeholder': 'Lösenord'
+            }
+        )
+    )
+
 class MessageForm(forms.Form):
     message = forms.CharField(
         label='', 
@@ -22,6 +50,7 @@ class MessageForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'class': 'textfield',
+                'type': 'text',
                 'placeholder': 'Säg något...',
             }
         )
@@ -42,7 +71,7 @@ def index(request):
     })
 
 def message(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_authenticated:
         form = MessageForm(request.POST)
 
         # Check if form data is valid
@@ -65,10 +94,10 @@ def message(request):
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))
 
-    return HttpResponseRedirect(reverse('mazu:index'))
+    return HttpResponseRedirect(reverse('mazu:login'))
 
 def weather(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_authenticated:
         if request.POST.get('zero'):
             print(f"\nReceived: {request.POST['zero']}\n")
         elif request.POST.get('one'):
@@ -76,7 +105,37 @@ def weather(request):
         # Redirect to new URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
-    return HttpResponseRedirect(reverse('mazu:index'))
+    return HttpResponseRedirect(reverse('mazu:login'))
+
+def login_view(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+
+        # Check if form data is valid
+        if form.is_valid():
+            # Attempt to sign user in
+            username = form.cleaned_data['username']
+            password = form. cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("mazu:index"))
+        else:
+            return render(request, "mazu/login.html", {
+                "form": form,
+                "message": "Fel användarnamn / lösenord"
+            })
+
+    form = LoginForm()
+    return render(request, "mazu/login.html", {
+        "form": form
+    })
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("mazu:index"))
 
 
 #######
@@ -85,8 +144,9 @@ def weather(request):
 def api_mazu(request):
     print("api_mazu received GET request")
     # Only return new prompts that have not been sent before
+
+    # Check if db has a record of the last prompt sent
     try:
-        # Check if db is empty
         last = Last.objects.all().last()
         if last == None:
             # db is empty, set 0 as reference value
@@ -105,8 +165,8 @@ def api_mazu(request):
     except:
         print("api_mazu failed to aquire the last object")
 
+    # Acquire all prompts created after the previously last prompt
     try:
-        # Acquire all prompts created after the previously last prompt
         # But first check if there are any new prompts
         if Prompt.objects.filter(id__gt=last).exists():
             data = Prompt.objects.filter(id__gt=last).order_by("id")
@@ -124,8 +184,8 @@ def api_mazu(request):
     except:
         raise Http404("api_mazu could not acquire prompts from db")
 
+    # save the new last object's id to db, if there is one
     try:
-        # save the new last object's id to db, if there is one
         if len(data) > 0:
             new_last = data.values()[len(data) - 1]["id"]
             # print(data.values()[len(data) - 1])

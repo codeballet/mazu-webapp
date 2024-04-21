@@ -1,3 +1,10 @@
+.alert {
+    color: yellow;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 1rem;
+}
+
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background-color: rgb(30,30,30);
@@ -30,6 +37,20 @@ li {
     justify-content: left;
     margin: 2rem;
     margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.logout_div {
+    height: 200px;
+    position: relative;
+  }
+  
+.center {
+    margin: 0;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .button {
@@ -66,7 +87,7 @@ li {
 }
   
 #calm_button:hover {
-    background-color: lightslategray;
+    background-color: lightskyblue;
 }
 
 #wind_button {
@@ -84,5 +105,25 @@ li {
 }
   
 #send_button:hover {
+    background-color: lightgreen;
+}
+
+#login_button {
+    padding: 1.2rem 2.2rem;
+    background-color: lightseagreen;
+}
+
+#login_button:hover {
+    background-color: aquamarine;
+}
+
+#logout_button {
+    padding: 1.1rem 2.0rem;
     background-color: gray;
+    font-size: 1.2em;
+    margin-top: 2.0rem;
+}
+
+#logout_button:hover {
+    background-color: lightpink;
 }

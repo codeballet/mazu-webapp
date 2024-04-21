@@ -1,0 +1,22 @@
+{% extends "mazu/layout.html" %}
+
+{% block content %}
+
+<div class="flex-container">
+
+    <h1>Logga in</h1>
+
+    {% if message %}
+    <div class="alert" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <form action="{% url 'mazu:login' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input class="button" id="send_button" type="submit" value="Sänd">
+    </form>
+
+</div>
+{% endblock content %}

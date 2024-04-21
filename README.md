@@ -5,7 +5,6 @@
 ```
 docker compose exec web python manage.py makemigrations 
 docker compose exec web python manage.py migrate
-docker compose exec web python manage.py createsuperuser
 ```
 
 ### Beware of ownership!
@@ -22,6 +21,10 @@ Create superuser programmatically by creating the following environment variable
 Then run the command:
 ```
 docker compose exec web python manage.py createsuperuser --noinput
+```
+Or, you can do:
+```
+docker compose exec web python manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 
 # Guidance from

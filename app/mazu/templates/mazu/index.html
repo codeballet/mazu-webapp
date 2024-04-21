@@ -21,18 +21,46 @@
         <input class="button" id="send_button" type="submit" value="Sänd">
     </form>
 
-    <div class="list_title">
+    {% if user.is_authenticated %}
+
         {% if prompts %}
-            <h3>Mazu hörde dig säga:</h3>
+            <div class="list_title">
+                <h3>Mazu hörde dig säga:</h3>
+            </div>
+            <div class="list">
+                {% for prompt in prompts reversed %}
+                    <li>"{{ prompt }}"</li>
+                {% endfor %}
+            </div>
         {% endif %}
-    </div>
-    <div class="list">
-        {% for prompt in prompts reversed %}
-        <li>{{ prompt }}</li>
-    {% empty %}
-    </div>
-        <h3>Du har inte sagt något än...</h3>
-    {% endfor %}
+
+        {% if not prompts %}
+            <div>
+                <h3>Du har inte sagt något än...</h3>
+            </div>
+        {% endif %}
+
+        <div class="logout_div">
+            <form action="{% url 'mazu:logout' %}">
+                {% csrf_token %}
+                <div class="center">
+                    <input class="button" id="logout_button" type="submit" name="logout" value="Log out">
+                </div>
+            </form>
+        </div>
+
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+
+        <form action="{% url 'mazu:login' %}" method="get">
+            {% csrf_token %}
+            <div>
+                <input class="button" id="login_button" type="submit" name="login" value="Logga in">
+            </div>
+        </form>
+
+    {% endif %}
 
 </div>
 {% endblock content %}
