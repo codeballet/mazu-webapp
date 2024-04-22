@@ -80,6 +80,14 @@ After the successful acquiring of certificates:
 - Comment out the location with static files in the http section.
 - Run the entire app with docker compose.
 
+### Pulling new production version from github
+Upon pulling a new verstion of the project to the production server, you may have to reset all uncommited changes.
+The below commands will remove all uncommitted changes, even if staged, and then pull:
+```
+git reset --hard HEAD
+git pull
+```
+
 ## Notes for creation of new apps and projects
 ### Beware of ownership when creating Django projects and apps
 If you are running Docker on Linux, the files django-admin created are owned by root. This happens because the container runs as the root user. Change the ownership of the new files.
