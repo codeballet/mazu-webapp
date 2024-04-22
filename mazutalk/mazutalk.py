@@ -5,6 +5,7 @@ import re
 import string
 import datetime
 import requests
+import os
 
 from sqlalchemy import create_engine, text
 import time
@@ -341,18 +342,28 @@ def main():
 
     # Keep looking for new input from the webserver every Nth second
     # Sleep timer
-    N = 5
+    N = 30
     while True:
         print("Inside mazutalk loop")
         try:
             # Get prompts from the web app
-            response = requests.get('http://web:8000/api_mazu')
+            # response = requests.get('http://web:8000/api_mazu')
+
+            # Try with post request and header authorization
+            url = "http://web:8000/api_mazu/"
+            headers = {
+                "Authorization": "Bearer %s" % os.environ.get("BEARER")
+            }
+            payload = {}
+            response = requests.post(url, headers=headers, json=payload)
+            print(f"Response code: {response.status_code}")
+
             data = response.json()
             print(f"Response:\n{data}")
             print(len(data["prompts"]))
 
+            # If new data, step through the prompts and generate sentences
             if len(data["prompts"]) > 0:
-            # Step through the prompts and generate AI responses
                 for prompt in data['prompts']:
                     print(f"prompt:\n{prompt}")
                     creation = int(prompt['pk'])
@@ -368,15 +379,13 @@ def main():
                     with engine.connect() as conn:
                         print("mazutalk ai saving to database")
 
-                        # conn.execute(
-                        #     text("INSERT INTO speech (created, prompt, sentence) VALUES ('54542', 'something', 'ai text generated');")
-                        # )
-
                         conn.execute(
                             text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
                             [{"creation": creation, "prompt": prompt_text, "sentence": sentence_raw}],
                         )
                         conn.commit()
+
+                # TODO: send POST request back to Web App with all the generated sentences.
             else:
                 print("mazutalk received no new data")
 

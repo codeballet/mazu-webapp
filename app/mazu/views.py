@@ -8,9 +8,11 @@ from django.core import serializers
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 import json
 import re
+import os
 
 from .models import Prompt, Last
 
@@ -141,63 +143,72 @@ def logout_view(request):
 #######
 # API #
 #######
+
+@csrf_exempt
 def api_mazu(request):
-    print("api_mazu received GET request")
-    # Only return new prompts that have not been sent before
+    if request.method == "POST":
+        # Check if authorization bearer token is valid
+        authorization = request.headers.get("Authorization")
+        bearer = authorization.split(' ')[1]
+        if bearer != os.environ.get("BEARER"):
+            raise Http404("Error: request not authorized")
 
-    # Check if db has a record of the last prompt sent
-    try:
-        last = Last.objects.all().last()
-        if last == None:
-            # db is empty, set 0 as reference value
-            l = Last(last_object=0)
-            l.save()
-            # print(f"api_mazu initiated last_object: {l}")
+        # Only return new prompts that have not been sent before
+        # Check if db has a record of the last prompt sent
+        try:
+            last = Last.objects.all().last()
+            if last == None:
+                # db is empty, set 0 as reference value
+                l = Last(last_object=0)
+                l.save()
+                # print(f"api_mazu initiated last_object: {l}")
 
-    except:
-        print("api_mazu failed to initiate last_object")
+        except:
+            print("Error: api_mazu failed to initiate last_object")
 
-    # Acquire all the new values from db since last check
-    try:
-        # First check the id for the last acquired prompt
-        last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
-        # print(f"last:\n{last}")
-    except:
-        print("api_mazu failed to aquire the last object")
+        # Acquire all the new values from db since last check
+        try:
+            # First check the id for the last acquired prompt
+            last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
+            # print(f"last:\n{last}")
+        except:
+            print("Error: api_mazu failed to aquire the last object")
 
-    # Acquire all prompts created after the previously last prompt
-    try:
-        # But first check if there are any new prompts
-        if Prompt.objects.filter(id__gt=last).exists():
-            data = Prompt.objects.filter(id__gt=last).order_by("id")
-            print(f"Acquired new data:\n{data}")
-        # if Prompt.objects.filter(id__gt=0).exists():
-        #     data = Prompt.objects.filter(id__gt=0).order_by("id")
-        #     print(f"Acquired new data:\n{data}")
-        else:
-            # Return an empty list
-            print("No new data to acquire, api_mazu returning empty list of prompts")
-            return JsonResponse({
-                "prompts": [],
-            }, status=200)
+        # Acquire all prompts created after the previously last prompt
+        try:
+            # But first check if there are any new prompts
+            if Prompt.objects.filter(id__gt=last).exists():
+                data = Prompt.objects.filter(id__gt=last).order_by("id")
+                print(f"Acquired new data:\n{data}")
+            # if Prompt.objects.filter(id__gt=0).exists():
+            #     data = Prompt.objects.filter(id__gt=0).order_by("id")
+            #     print(f"Acquired new data:\n{data}")
+            else:
+                # Return an empty list
+                print("No new data to acquire, api_mazu returning empty list of prompts")
+                return JsonResponse({
+                    "prompts": [],
+                }, status=200)
 
-    except:
-        raise Http404("api_mazu could not acquire prompts from db")
+        except:
+            raise Http404("Error: could not acquire prompts from db")
 
-    # save the new last object's id to db, if there is one
-    try:
-        if len(data) > 0:
-            new_last = data.values()[len(data) - 1]["id"]
-            # print(data.values()[len(data) - 1])
-            nl = Last(last_object=new_last)
-            nl.save()
-            # print("Saved new id for last prompt")
-    except:
-        raise Http404("api_mazu could not save last_object to db")
+        # save the new last object's id to db, if there is one
+        try:
+            if len(data) > 0:
+                new_last = data.values()[len(data) - 1]["id"]
+                # print(data.values()[len(data) - 1])
+                nl = Last(last_object=new_last)
+                nl.save()
+                # print("Saved new id for last prompt")
+        except:
+            raise Http404("Error: could not save last_object to db")
 
-    # Send json response to request
-    serialized_data = serializers.serialize("json", data)
-    data_list = json.loads(serialized_data)
-    return JsonResponse({
-        "prompts": data_list,
-    }, status=200)
+        # Send json response to request
+        serialized_data = serializers.serialize("json", data)
+        data_list = json.loads(serialized_data)
+        return JsonResponse({
+            "prompts": data_list,
+        }, status=200)
+
+    raise Http404("Error: POST request required")
