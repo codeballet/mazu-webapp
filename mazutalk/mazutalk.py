@@ -350,7 +350,7 @@ def main():
             # response = requests.get('http://web:8000/api_mazu')
 
             # Try with post request and header authorization
-            url = "http://web:8000/api_mazu/"
+            url = "https://spaceengineering.io/api_mazu/"
             headers = {
                 "Authorization": "Bearer %s" % os.environ.get("BEARER")
             }
