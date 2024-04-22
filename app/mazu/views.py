@@ -5,6 +5,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.http.response import JsonResponse
 from django.core import serializers
+from django.db import Error
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -45,10 +46,11 @@ class LoginForm(forms.Form):
         )
     )
 
+
 class MessageForm(forms.Form):
     message = forms.CharField(
-        label='', 
-        max_length=100, 
+        label='',
+        max_length=100,
         widget=forms.TextInput(
             attrs={
                 'class': 'textfield',
@@ -58,9 +60,11 @@ class MessageForm(forms.Form):
         )
     )
 
+
 #########
 # Views #
 #########
+
 def index(request):
     form = MessageForm()
 
@@ -71,6 +75,7 @@ def index(request):
         "form": form,
         "prompts": request.session["prompts"],
     })
+
 
 def message(request):
     if request.method == 'POST' and request.user.is_authenticated:
@@ -88,15 +93,18 @@ def message(request):
             # Save form content to database
             # Add to prompt_text in Prompt model
             try:
-                p = Prompt(prompt_text = prompt)
+                p = Prompt(prompt_text=prompt)
                 p.save()
-            except:
-                raise Http404("Cannot save to database")
-            
+            except Error as e:
+                return JsonResponse({
+                    "error": e,
+                }, status=500)
+
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))
 
     return HttpResponseRedirect(reverse('mazu:login'))
+
 
 def weather(request):
     if request.method == 'POST' and request.user.is_authenticated:
@@ -108,6 +116,7 @@ def weather(request):
         return HttpResponseRedirect(reverse('mazu:index'))
 
     return HttpResponseRedirect(reverse('mazu:login'))
+
 
 def login_view(request):
     if request.method == "POST":
@@ -135,6 +144,7 @@ def login_view(request):
         "form": form
     })
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("mazu:index"))
@@ -157,29 +167,33 @@ def api_mazu(request):
         # Check if db has a record of the last prompt sent
         try:
             last = Last.objects.all().last()
-            if last == None:
+            if last is None:
                 # db is empty, set 0 as reference value
-                l = Last(last_object=0)
-                l.save()
+                value = Last(last_object=0)
+                value.save()
                 # print(f"api_mazu initiated last_object: {l}")
 
-        except:
-            print("Error: api_mazu failed to initiate last_object")
+        except Error as e:
+            return JsonResponse({
+                "error": e,
+            }, status=500)
 
         # Acquire all the new values from db since last check
         try:
             # First check the id for the last acquired prompt
             last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
             # print(f"last:\n{last}")
-        except:
-            print("Error: api_mazu failed to aquire the last object")
+        except Error as e:
+            return JsonResponse({
+                "error": e,
+            }, status=500)
 
         # Acquire all prompts created after the previously last prompt
         try:
             # But first check if there are any new prompts
             if Prompt.objects.filter(id__gt=last).exists():
                 data = Prompt.objects.filter(id__gt=last).order_by("id")
-                print(f"Acquired new data:\n{data}")
+                print(f"Acquired new data: \n{data}")
             # if Prompt.objects.filter(id__gt=0).exists():
             #     data = Prompt.objects.filter(id__gt=0).order_by("id")
             #     print(f"Acquired new data:\n{data}")
@@ -190,8 +204,10 @@ def api_mazu(request):
                     "prompts": [],
                 }, status=200)
 
-        except:
-            raise Http404("Error: could not acquire prompts from db")
+        except Error as e:
+            return JsonResponse({
+                "error": e,
+            }, status=500)
 
         # save the new last object's id to db, if there is one
         try:
@@ -201,8 +217,10 @@ def api_mazu(request):
                 nl = Last(last_object=new_last)
                 nl.save()
                 # print("Saved new id for last prompt")
-        except:
-            raise Http404("Error: could not save last_object to db")
+        except Error as e:
+            return JsonResponse({
+                "error": e,
+            }, status=500)
 
         # Send json response to request
         serialized_data = serializers.serialize("json", data)
