@@ -7,8 +7,8 @@
         <li class="nav_li"><a href="{% url 'mazu:index' %}">Skapa</a></li>
         <li class="nav_li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
         {% if not user.is_authenticated %}
-            <li class="nav_li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
-            <li class="nav_li nav_login active"><a href="{% url 'mazu:login' %}">Logga in</a></li>
+            <li class="nav_li active"><a href="{% url 'mazu:register' %}">Registrera</a></li>
+            <li class="nav_li nav_login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
             <li class="nav_li nav_logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
@@ -20,17 +20,9 @@
 
 {% block content %}
 
-    <h1>Logga in till Mazu</h1>
+    <h1>Registrera dig</h1>
 
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <p class="alert">{{ message }}</p>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
-    <form action="{% url 'mazu:login' %}" method="post">
+    <form action="{% url 'mazu:register' %}" method="post">
         {% csrf_token %}
         {{ form }}
         <input class="button" id="send_button" type="submit" value="Sänd">

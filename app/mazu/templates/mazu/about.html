@@ -1,0 +1,96 @@
+{% extends "mazu/layout.html" %}
+
+{% block nav %}
+
+<nav>
+    <ul class="nav_ul">
+        <li class="nav_li"><a href="{% url 'mazu:index' %}">Skapa</a></li>
+        <li class="nav_li"><a class="active" href="{% url 'mazu:about' %}">Om Mazu</a></li>
+        {% if not user.is_authenticated %}
+            <li class="nav_li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
+            <li class="nav_li nav_login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <li class="nav_li nav_logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}
+
+{% block content %}
+
+    <div>
+        <h1>Om Mazu</h1>
+    </div>
+    <p>
+        Mazu är ett Utställnings och Performance Art 
+        projekt under utveckling av Johan Stjernholm. 
+        Verket visas som en tidig prototyp för publik 
+        under den internationella dansfestivalen för 
+        Dansens Dag på Argus i Falkenberg den 28 April 2024.
+    </p>
+    <p>
+        Projektet handlar om en mytologisk kinesisk gestalt, 
+        havsgudinnan Mazu, som av misstag råkar materialiseras 
+        i vår nutida värld, dels som en artificiell intelligens 
+        och dels som en människa.
+    </p>
+    <p>
+        Du kan interagera med Mazu some en artificiell intelligens 
+        genom att skriva meddelanden i den här appen på sidan 
+        <a href="{% url 'mazu:index' %}">Skapa med Mazu</a>.
+        Vad du skriver kommer att leda till ett gensvar som läses upp 
+        av en röst i utställningslokal.
+    </p>
+    <p>
+        Mazus gensvar är ibland svåra att tolka, då hon talar i stilen 
+        av gammal kinesisk poesi, blandat med endast fragmentarisk kunskap 
+        om vår nutida värld. Kom ihåg att Mazu har just anlänt och 
+        vet inte riktigt vad som försiggår här.
+    </p>
+
+    <h2>Om Johan Stjernholm (PhD)</h2>
+    <p>
+        Dr. Johan Stjernholm är en internatinellt erkänd och prisbelönad konstnär. 
+        Hans verk har visats i Asien, Europa, och Amerika. 
+        Sedan 2014 har Johan arbetat baserad i Sydkorea och Kina med att utveckla 
+        produktioner för teatrar, museer, och film. Innan dess arbetade han som 
+        Lecturer in Choreography vid the Royal Adacemy of Dance i London.
+    </p>
+    <p>
+        Just nu arbetar Johan med att utveckla den nya produktionen "Mazu: Vattenlegender", 
+        sponsrat av Kungsbackateatern och Rum för Dans. 
+        Verket är grundat på kinesiska myter och legender, självbiografiska element, 
+        och nutida ekologiska problem relaterade till vatten och havet.
+    </p>
+    <p>
+        Mazu är ett interaktivt verk där publiken agerar som medskapare. 
+        som blandar Performance Art, datorvetenskap, teater, musik, och dans.
+    </p>
+
+    <h3>Exempel på tidigare verk av Johan:</h3>
+    <ul>
+        <li>Kompositör för filmen “Moonlight Warrior” (2023). Vinnare av Best Feature Film Screenplay at the Next Generation Indie Film Awards 2023. Filmregissör: Hong Ying.</li>
+        <li>Konstnärlig ledare för ”Who is Alice?” (2022) på U2 by UCCA, Peking, Kina, i samarbete med Victoria & Albert Museum, London</li>
+        <li>Konstnärlig Ledare för utställningen “Alchemy: Paths of Transformation” (2021) på Art Haitang, Sanya, China.</li>
+        <li>Filmregissör för filmen “Phantom Pilgrimage” (2021), turnerande på flera museer i Kina.</li>
+        <li>Producent och kompositör för operan “Desireworks” (2017), Sydkorea.</li>
+        <li>Producent för operan “The Golden Apple” (2016), Sydkorea.</li>
+    </ul>
+
+    <h2>Om Dansens Dag Falkenbergs Internationella Dansfestival, 28 april 2024</h2>
+    <p>
+        Dansens Dag Internationella Dansfestival är en produktion av 
+        Johan Stjernholm i samarbete med Studieförbundet Vuxenskolan, Argus, 
+        Falkenbergs Kommun, Space Engineering Art Project, Rum för Dans, 
+        Dansstudion, och Folkuniversitetet.
+    </p>
+    <p>
+        Festivalen innehåller en workshop med den internationella dansartisten 
+        Andrea Peña, uppträdanden av svenska artister, samt en prototyputställning 
+        av Johan Stjernholms uppkommande verk Mazu.
+
+    </p>
+
+{% endblock content %}

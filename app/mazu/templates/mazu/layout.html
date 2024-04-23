@@ -8,9 +8,12 @@
         <link rel="stylesheet" href="{% static 'mazu/styles.css' %}">
     </head>
     <body>
-        <div class="container">
+        <div class="flex-container">
+            {% block nav %}
+            {% endblock %}
             {% block content %}
             {% endblock %}
+            <footer>&copy;Johan Stjernholm 2024</footer>
         </div>
     </body>
 </html>

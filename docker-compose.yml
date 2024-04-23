@@ -1,14 +1,14 @@
 services:
 
-  # web:
-  #   build: ./app
-  #   command: python manage.py runserver 0.0.0.0:8000
-  #   volumes:
-  #     - ./app/:/usr/src/app/
-  #   ports:
-  #     - 8000:8000
-  #   env_file:
-  #     - ./.env.dev
+  web:
+    build: ./app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app/:/usr/src/app/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://web:8000"]
     #   interval: 5s
@@ -16,79 +16,79 @@ services:
     #   retries: 5
     #   start_period: 10s
 
-  vocoder:
-    build: ./vocoder
-    command: python vocoder.py
-    depends_on:
-      - speech
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - ./vocoder/:/app/
-      - soundfiles:/soundfiles/
+  # vocoder:
+  #   build: ./vocoder
+  #   command: python vocoder.py
+  #   depends_on:
+  #     - speech
+  #   environment:
+  #     - POSTGRES_NAME=postgres
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #     - ./vocoder/:/app/
+  #     - soundfiles:/soundfiles/
 
-  speech:
-    build: ./speech
-    command: python speech.py
-    depends_on:
-      mazutalk:
-        condition: service_started
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - ./speech/:/app/
-      - soundfiles:/soundfiles/
+  # speech:
+  #   build: ./speech
+  #   command: python speech.py
+  #   depends_on:
+  #     mazutalk:
+  #       condition: service_started
+  #   environment:
+  #     - POSTGRES_NAME=postgres
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #     - ./speech/:/app/
+  #     - soundfiles:/soundfiles/
 
-#   # notebooks:
-#   #   build: ./jupyter
-#   #   tty: true
-#   #   volumes:
-#   #     - ./jupyter/data/:/app/data
-#   #     - ./jupyter/notebooks/:/app/notebooks
-#   #   deploy:
-#   #     resources:
-#   #       reservations:
-#   #         devices:
-#   #           - driver: nvidia
-#   #             count: 1
-#   #             capabilities: [gpu]
-#   #   ports:
-#   #       - "$JUPYTER_PORT:$JUPYTER_PORT"
-#   #       - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
-#   #   env_file:
-#   #    - ./.env
-#   #   entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
+  # notebooks:
+  #   build: ./jupyter
+  #   tty: true
+  #   volumes:
+  #     - ./jupyter/data/:/app/data
+  #     - ./jupyter/notebooks/:/app/notebooks
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   ports:
+  #       - "$JUPYTER_PORT:$JUPYTER_PORT"
+  #       - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
+  #   env_file:
+  #    - ./.env
+  #   entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
 
-  mazutalk:
-    build: ./mazutalk
-    depends_on:
-      db:
-        condition: service_started
-      # web:
-      #   # condition: service_healthy
-      #   condition: service_started
-    command: python mazutalk.py
-    env_file:
-      - ./.env
-    volumes:
-      - ./mazutalk/:/app
+#   mazutalk:
+#     build: ./mazutalk
+#     depends_on:
+#       db:
+#         condition: service_started
+#       # web:
+#       #   # condition: service_healthy
+#       #   condition: service_started
+#     command: python mazutalk.py
+#     env_file:
+#       - ./.env
+#     volumes:
+#       - ./mazutalk/:/app
 
-  db:
-    image: postgres:16.2-alpine
-    volumes:
-      - db:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+#   db:
+#     image: postgres:16.2-alpine
+#     volumes:
+#       - db:/var/lib/postgresql/data
+#       - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+#     environment:
+#       - POSTGRES_DB=postgres
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
 
 
-volumes:
-  db:
-  soundfiles:
+# volumes:
+#   db:
+#   soundfiles:

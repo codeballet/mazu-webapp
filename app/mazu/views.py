@@ -5,7 +5,8 @@ from django.http import Http404
 from django.urls import reverse
 from django.http.response import JsonResponse
 from django.core import serializers
-from django.db import Error
+from django.db import Error, IntegrityError
+from django.contrib import messages
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,7 @@ import json
 import re
 import os
 
+from django.contrib.auth.models import User
 from .models import Prompt, Last
 
 
@@ -30,7 +32,8 @@ class LoginForm(forms.Form):
             attrs={
                 'class': 'textfield',
                 'type': 'text',
-                'placeholder': 'Användarnamn'
+                'placeholder': 'Användarnamn...',
+                'autofocus': 'autofocus'
             }
         )
     )
@@ -41,7 +44,7 @@ class LoginForm(forms.Form):
             attrs={
                 'class': 'textfield',
                 'type': 'password',
-                'placeholder': 'Lösenord'
+                'placeholder': 'Lösenord...'
             }
         )
     )
@@ -61,6 +64,43 @@ class MessageForm(forms.Form):
     )
 
 
+class RegisterForm(forms.Form):
+    username = forms.CharField(
+        label='',
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'textfield',
+                'type': 'text',
+                'placeholder': 'Användarnamn...',
+                'autofocus': 'autofocus'
+            }
+        )
+    )
+    password = forms.CharField(
+        label='',
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'textfield',
+                'type': 'password',
+                'placeholder': 'Lösenord...'
+            }
+        )
+    )
+    confirmation = forms.CharField(
+        label='',
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'textfield',
+                'type': 'password',
+                'placeholder': 'Skriv lösenordet igen...'
+            }
+        )
+    )
+
+
 #########
 # Views #
 #########
@@ -75,6 +115,44 @@ def index(request):
         "form": form,
         "prompts": request.session["prompts"],
     })
+
+def about(request):
+    return render(request, 'mazu/about.html')
+
+
+
+def login_view(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+
+        # Check if form data is valid
+        if form.is_valid():
+            # Attempt to sign user in
+            username = form.cleaned_data['username']
+            password = form. cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Välkommen %s!' % user.username)
+            return HttpResponseRedirect(reverse("mazu:index"))
+        else:
+            messages.info(request, 'Fel användarnamn / lösenord')
+            return render(request, "mazu/login.html", {
+                "form": form,
+            })
+
+    form = LoginForm()
+    return render(request, "mazu/login.html", {
+        "form": form
+    })
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Farväl!')
+    return HttpResponseRedirect(reverse("mazu:index"))
 
 
 def message(request):
@@ -106,6 +184,48 @@ def message(request):
     return HttpResponseRedirect(reverse('mazu:login'))
 
 
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+
+        # Check if form data is valid
+        if form.is_valid():
+            # Attempt to sign user in
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            confirmation = form.cleaned_data['confirmation']
+
+            # Ensure password matches confirmation
+            if password != confirmation:
+                messages.info(request, "Lösenorden stämmer inte!")
+                return render(request, 'mazu/register.html', {
+                    'form': form,
+                })
+
+            # Attempt to create new user
+            try:
+                user = User.objects.create_user(username, password)
+                user.save()
+            except IntegrityError:
+                messages.info(request, "Det användarnamet är redan taget")
+                return render(request, 'mazu/register.html', {
+                    'form': form,
+                })
+
+            # Login user
+            login(request, user)
+
+            # Load homepage
+            messages.success(request, 'Välkommen %s!' % user.username)
+            return HttpResponseRedirect(reverse('mazu:index'))
+
+    # Instantiate the RegisterForm and load register page
+    form = RegisterForm()
+    return render(request, 'mazu/register.html', {
+        'form': form,
+    })
+
+
 def weather(request):
     if request.method == 'POST' and request.user.is_authenticated:
         if request.POST.get('zero'):
@@ -116,38 +236,6 @@ def weather(request):
         return HttpResponseRedirect(reverse('mazu:index'))
 
     return HttpResponseRedirect(reverse('mazu:login'))
-
-
-def login_view(request):
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-
-        # Check if form data is valid
-        if form.is_valid():
-            # Attempt to sign user in
-            username = form.cleaned_data['username']
-            password = form. cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-
-        # Check if authentication successful
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect(reverse("mazu:index"))
-        else:
-            return render(request, "mazu/login.html", {
-                "form": form,
-                "message": "Fel användarnamn / lösenord"
-            })
-
-    form = LoginForm()
-    return render(request, "mazu/login.html", {
-        "form": form
-    })
-
-
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("mazu:index"))
 
 
 #######
