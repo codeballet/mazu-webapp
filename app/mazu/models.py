@@ -8,6 +8,7 @@ class User(AbstractUser):
     def __str__(self):
         return (f"id: {self.id}, username: {self.username}")
 
+
 class Prompt(models.Model):
     prompt_text = models.CharField(max_length=80)
     # created = models.BigIntegerField(default=0)

@@ -115,9 +115,9 @@ def index(request):
         "prompts": request.session["prompts"],
     })
 
+
 def about(request):
     return render(request, 'mazu/about.html')
-
 
 
 def login_view(request):
