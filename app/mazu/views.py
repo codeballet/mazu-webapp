@@ -16,8 +16,7 @@ import json
 import re
 import os
 
-from django.contrib.auth.models import User
-from .models import Prompt, Last
+from .models import Prompt, Last, User
 
 
 #########
@@ -136,6 +135,8 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'Välkommen %s!' % user.username)
+            messages.success(request, 'Sänd Mazu meddelenaden och lyssna noga i lokalen där du är.')
+            messages.success(request, 'Mazu kommer att svara dig.')
             return HttpResponseRedirect(reverse("mazu:index"))
         else:
             messages.info(request, 'Fel användarnamn / lösenord')
@@ -204,7 +205,11 @@ def register(request):
 
             # Attempt to create new user
             try:
-                user = User.objects.create_user(username, password)
+                user = User.objects.create_user(
+                    username=username,
+                    email=None,
+                    password=password
+                )
                 user.save()
             except IntegrityError:
                 messages.info(request, "Det användarnamet är redan taget")

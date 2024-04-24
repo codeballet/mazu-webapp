@@ -23,11 +23,17 @@
     <h1>Skapa med Mazu</h1>
 
     {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <p class="alert">{{ message }}</p>
-        {% endfor %}
-    </ul>
+        <ul class="messages_ul">
+            {% for message in messages %}
+                <p class="alert">{{ message }}</p>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+        <p>
+            För att interagera med Mazu måste du först logga in eller registrera dig
+        </p>
     {% endif %}
     
     <form action="{% url 'mazu:weather' %}" method="post">

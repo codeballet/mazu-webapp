@@ -20,9 +20,16 @@
 
 {% block content %}
 
-    <div>
-        <h1>Om Mazu</h1>
-    </div>
+    {% if messages %}
+    <ul class="messages_ul">
+        {% for message in messages %}
+            <p class="alert">{{ message }}</p>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h1>Om Mazu</h1>
+
     <p>
         Mazu är ett Utställnings och Performance Art 
         projekt under utveckling av Johan Stjernholm. 

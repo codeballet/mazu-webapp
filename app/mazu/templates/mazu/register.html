@@ -22,6 +22,14 @@
 
     <h1>Registrera dig</h1>
 
+    {% if messages %}
+    <ul class="messages_ul">
+        {% for message in messages %}
+            <p class="alert">{{ message }}</p>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     <form action="{% url 'mazu:register' %}" method="post">
         {% csrf_token %}
         {{ form }}

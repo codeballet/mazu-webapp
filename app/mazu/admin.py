@@ -1,6 +1,6 @@
 from django.contrib import admin
-
-from .models import Prompt, Last
+from django.contrib.auth.admin import UserAdmin
+from .models import Prompt, Last, User
 
 # Register your models here.
 
@@ -15,3 +15,4 @@ class LastAdmin(admin.ModelAdmin):
 
 admin.site.register(Prompt, PromptAdmin)
 admin.site.register(Last, LastAdmin)
+admin.site.register(User, UserAdmin)
