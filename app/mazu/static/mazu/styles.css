@@ -8,72 +8,42 @@ body {
     background-color: rgb(30,30,30);
 }
 
-h1, h2, h3, p, li {
+footer, h1, h2, h3, li, p {
     color: rgb(200,200,200);
+}
+
+h1 {
+    margin-top: 4rem;
+}
+
+h2, h3 {
     margin-left: 1rem;
-    margin-right: 1rem;
 }
 
-p, li {
-    font-size: 1em;
+p {
+    margin: 0rem 2rem 0rem 2rem;
 }
 
-@media only screen and (min-width: 460) {
-    p, h1, h2, h3, li {
-        margin-left: 5rem;
-        margin-right: 5rem;
-    }
-}
-
-@media only screen and (min-width: 568) {
-    p, h1, h2, h3, li {
-        margin-left: 10rem;
-        margin-right: 10rem;
-    }
-}
-
-@media only screen and (min-width: 768px) {
-    p, h1, h2, h3, li {
-        margin-left: 15rem;
-        margin-right: 15rem;
-    }
-}
-
-@media only screen and (min-width: 1080px) {
-    p, h1, h2, h3, li {
-        margin-left: 20rem;
-        margin-right: 20rem;
-    }
-}
-
-li {
-    margin-bottom: 0.3rem;
+.prompt {
+    margin: 0rem 2rem 0.4rem 2rem;
 }
 
 .flex-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 4rem;
     justify-content: center;
 }
 
-.list {
-    color: rgb(200,200,200);
-    justify-content: left;
-    margin: 2rem;
+.weather {
     margin-top: 1rem;
-    margin-bottom: 0.5rem;
 }
 
-.list_title, h3 {
-    margin-bottom: 0rem;
-}
+
+/* Buttons */
 
 .button {
     font-weight: bold;
-    margin: 1rem;
-    font-size: 1.5em;
+    margin: 0.8rem;
+    font-size: 1.3em;
     cursor: pointer;
     text-align: center;
     text-decoration: none;
@@ -87,9 +57,39 @@ li {
     transform: translateY(4px);
 }
 
+#button-calm {
+    padding: 1.2rem 2rem;
+    background-color: lightsteelblue;
+}
+  
+#button-calm:hover {
+    background-color: lightskyblue;
+}
+
+#button-wind {
+    padding: 1.2rem 1.7rem;
+    background-color: palevioletred;
+}
+  
+#button-wind:hover {
+    background-color: mediumvioletred;
+}
+  
+#button-send {
+    padding: 1rem 1.5rem;
+    background-color: rgb(200,200,200);
+}
+  
+#button-send:hover {
+    background-color: lightgreen;
+}
+
+
+/* Text input fields */
+
 .textfield {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 1.4em;
+    font-size: 1.3em;
     border-radius: 5px;
     background-color: rgb(200, 200, 200);
     margin: 2rem 1rem 0rem 1rem;
@@ -97,64 +97,35 @@ li {
     border: none;
 }
 
-#calm_button {
-    padding: 1.2rem 2.2rem;
-    background-color: lightsteelblue;
-}
-  
-#calm_button:hover {
-    background-color: lightskyblue;
-}
-
-#wind_button {
-    padding: 1.2rem 2rem;
-    background-color: palevioletred;
-}
-  
-#wind_button:hover {
-    background-color: mediumvioletred;
-}
-  
-#send_button {
-    padding: 1rem 1.5rem;
-    background-color: rgb(200,200,200);
-}
-  
-#send_button:hover {
-    background-color: lightgreen;
-}
-
 
 /* Footer */
 
-.active {
-    background-color: rgb(30,30,30);
-}
-
 footer {
-    color: rgb(200, 200, 200);
     margin: 1rem;
     padding: 1rem;
-    font-size: 0.8em;
+    font-size: 0.7em;
 }
 
 
 /* Messages */
 
-.alert {
+.messages-ul {
+    list-style-type: none;
+}
+
+.messages-li {
     color: yellow;
     font-weight: bold;
     font-size: 1em;
-    margin: 1rem;
-    margin-top: 0rem;
-}
-
-.messages_ul {
-    list-style-type: none;
+    margin: 0rem 2rem 0.4rem 0rem;
 }
 
 
 /* Navigation */
+
+.active {
+    background-color: rgb(30,30,30);
+}
 
 nav {
     position: fixed;
@@ -162,7 +133,7 @@ nav {
     width: 100%;
 }
 
-.nav_ul {
+.nav-ul {
     display: flex;
     flex-direction: row;
     list-style-type: none;
@@ -172,26 +143,34 @@ nav {
     overflow: hidden;
 }
 
-.nav_li {
+.nav-li {
     display: inline;
     margin: 0;
 }
 
-.nav_li a {
+.nav-li a {
     display: block;
     text-align: center;
-    padding: 14px 16px;
+    padding: 1rem 1rem;
     text-decoration: none;
+    font-size: 0.9em;
 }
 
-.nav_li a:hover {
+.nav-li a:hover {
     background-color: rgb(30,30,30);
 }
 
-.nav_login {
+.nav-login {
     margin-left: auto;
 }
 
-.nav_logout {
+.nav-logout {
     margin-left: auto;
+}
+
+@media only screen and (min-width: 768px) {
+    p, h1, h2, h3, li {
+        margin-left: 12rem;
+        margin-right: 12rem;
+    }
 }

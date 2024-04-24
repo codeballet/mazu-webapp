@@ -124,4 +124,4 @@ while True:
         if wav_number not in syn_list:
             synthesize(wav_file, wav_number)
 
-    time.sleep(10)
+    time.sleep(5)

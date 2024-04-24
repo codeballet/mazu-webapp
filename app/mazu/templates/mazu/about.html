@@ -3,32 +3,26 @@
 {% block nav %}
 
 <nav>
-    <ul class="nav_ul">
-        <li class="nav_li"><a href="{% url 'mazu:index' %}">Skapa</a></li>
-        <li class="nav_li"><a class="active" href="{% url 'mazu:about' %}">Om Mazu</a></li>
+    <ul class="nav-ul">
+        <li class="nav-li"><a href="{% url 'mazu:index' %}">Skapa</a></li>
+        <li class="nav-li"><a class="active" href="{% url 'mazu:about' %}">Om Mazu</a></li>
         {% if not user.is_authenticated %}
-            <li class="nav_li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
-            <li class="nav_li nav_login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
+            <li class="nav-li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
+            <li class="nav-li nav-login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
-            <li class="nav_li nav_logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
+            <li class="nav-li nav-logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
         {% endif %}
     </ul>
 </nav>
 
 {% endblock %}
 
-{% block content %}
-
-    {% if messages %}
-    <ul class="messages_ul">
-        {% for message in messages %}
-            <p class="alert">{{ message }}</p>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
+{% block heading %}
     <h1>Om Mazu</h1>
+{% endblock heading %}
+
+{% block content %}
 
     <p>
         Mazu är ett Utställnings och Performance Art 

@@ -152,7 +152,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, 'Farväl!')
+    messages.success(request, 'Farväl, min vän!')
     return HttpResponseRedirect(reverse("mazu:index"))
 
 

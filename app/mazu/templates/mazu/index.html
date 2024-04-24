@@ -3,70 +3,72 @@
 {% block nav %}
 
 <nav>
-    <ul class="nav_ul">
-        <li class="nav_li"><a class="active" href="{% url 'mazu:index' %}">Skapa</a></li>
-        <li class="nav_li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
+    <ul class="nav-ul">
+        <li class="nav-li"><a class="active" href="{% url 'mazu:index' %}">Skapa</a></li>
+        <li class="nav-li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
         {% if not user.is_authenticated %}
-            <li class="nav_li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
-            <li class="nav_li nav_login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
+            <li class="nav-li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
+            <li class="nav-li nav-login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
-            <li class="nav_li nav_logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
+            <li class="nav-li nav-logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
         {% endif %}
     </ul>
 </nav>
 
-{% endblock %}
+{% endblock nav %}
+
+
+{% block heading %}
+    <h1>Skapa med Mazu</h1>
+{% endblock heading %}
+
 
 {% block content %}
 
-    <h1>Skapa med Mazu</h1>
-
-    {% if messages %}
-        <ul class="messages_ul">
-            {% for message in messages %}
-                <p class="alert">{{ message }}</p>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
     {% if not user.is_authenticated %}
-        <p>
-            För att kunna skapa med Mazu måste du först logga in eller registrera dig
-        </p>
-    {% endif %}
-    
-    <form action="{% url 'mazu:weather' %}" method="post">
-        {% csrf_token %}
-        <div>
-            <input class="button" id="calm_button" type="submit" name="zero" value="Stilla">
-            <input class="button" id="wind_button" type="submit" name="one" value="Blåsigt">
+        <div class="flex-container">
+            <p>För att kunna skapa med Mazu måste du först logga in eller registrera dig</p>
         </div>
-    </form>
+    {% endif %}
 
-    <form action="{% url 'mazu:message' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input class="button" id="send_button" type="submit" value="Sänd">
-    </form>
+    <div class="flex-container weather">
+        <form action="{% url 'mazu:weather' %}" method="post">
+            {% csrf_token %}
+            <input class="button" id="button-calm" type="submit" name="zero" value="Stilla">
+            <input class="button" id="button-wind" type="submit" name="one" value="Blåsigt">
+        </form>
+    </div>
+    
+    <div class="flex-container">
+        <form action="{% url 'mazu:message' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input class="button" id="button-send" type="submit" value="Sänd">
+        </form>
+    </div>
+
 
     {% if user.is_authenticated %}
 
         {% if prompts %}
-            <div class="list_title">
+            <div class="flex-container">
                 <h3>Mazu hörde dig säga:</h3>
             </div>
-            <div class="list">
-                {% for prompt in prompts reversed %}
-                    <li>"{{ prompt }}"</li>
-                {% endfor %}
+
+            <div class="flex-container">
+                <div class="list">
+                    {% for prompt in prompts reversed %}
+                        <li class="prompt">"{{ prompt }}"</li>
+                    {% endfor %}
+                </div>
             </div>
         {% endif %}
 
         {% if not prompts %}
-            <div>
-                <h3>Du har inte sagt något än...</h3>
-            </div>
+        <div class="flex-container">
+            <h3>Du har inte sagt något än...</h3>
+        </div>
         {% endif %}
 
     {% endif %}
