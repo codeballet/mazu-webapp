@@ -6,13 +6,13 @@
     <ul class="nav-ul">
         <li class="nav-li"><a class="active" href="{% url 'mazu:index' %}">Skapa</a></li>
         <li class="nav-li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
-        {% if not user.is_authenticated %}
+        <!-- {% if not user.is_authenticated %}
             <li class="nav-li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
             <li class="nav-li nav-login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
             <li class="nav-li nav-logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
-        {% endif %}
+        {% endif %} -->
     </ul>
 </nav>
 
@@ -26,19 +26,19 @@
 
 {% block content %}
 
-    {% if not user.is_authenticated %}
+    <!-- {% if not user.is_authenticated %}
         <div class="flex-container">
             <p>För att kunna skapa med Mazu måste du först logga in eller registrera dig</p>
         </div>
-    {% endif %}
+    {% endif %} -->
 
-    <div class="flex-container weather">
+    <!-- <div class="flex-container weather">
         <form action="{% url 'mazu:weather' %}" method="post">
             {% csrf_token %}
             <input class="button" id="button-calm" type="submit" name="zero" value="Stilla">
             <input class="button" id="button-wind" type="submit" name="one" value="Blåsigt">
         </form>
-    </div>
+    </div> -->
     
     <div class="flex-container">
         <form action="{% url 'mazu:message' %}" method="post">
@@ -49,7 +49,28 @@
     </div>
 
 
-    {% if user.is_authenticated %}
+    {% if prompts %}
+    <div class="flex-container">
+        <h3>Mazu hörde dig säga:</h3>
+    </div>
+
+    <div class="flex-container">
+        <div class="list">
+            {% for prompt in prompts reversed %}
+                <li class="prompt">"{{ prompt }}"</li>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not prompts %}
+    <div class="flex-container">
+        <h3>Du har inte sagt något än...</h3>
+    </div>
+    {% endif %}
+
+    <!-- TODO: restore authentication requirements -->
+    <!-- {% if user.is_authenticated %}
 
         {% if prompts %}
             <div class="flex-container">
@@ -71,6 +92,6 @@
         </div>
         {% endif %}
 
-    {% endif %}
+    {% endif %} -->
 
 {% endblock content %}

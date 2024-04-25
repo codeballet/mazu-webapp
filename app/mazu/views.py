@@ -157,7 +157,9 @@ def logout_view(request):
 
 
 def message(request):
-    if request.method == 'POST' and request.user.is_authenticated:
+    # TODO: restore authentication
+    # if request.method == 'POST' and request.user.is_authenticated:
+    if request.method == 'POST':
         form = MessageForm(request.POST)
 
         # Check if form data is valid

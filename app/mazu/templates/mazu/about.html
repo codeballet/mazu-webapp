@@ -6,13 +6,13 @@
     <ul class="nav-ul">
         <li class="nav-li"><a href="{% url 'mazu:index' %}">Skapa</a></li>
         <li class="nav-li"><a class="active" href="{% url 'mazu:about' %}">Om Mazu</a></li>
-        {% if not user.is_authenticated %}
+        <!-- {% if not user.is_authenticated %}
             <li class="nav-li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
             <li class="nav-li nav-login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
             <li class="nav-li nav-logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
-        {% endif %}
+        {% endif %} -->
     </ul>
 </nav>
 
