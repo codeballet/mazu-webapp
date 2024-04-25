@@ -31,7 +31,8 @@ LOAD_MODEL = True
 BATCH_SIZE = 32
 EPOCHS = 1
 DATASET_REPETITIONS = 1
-TRAIN = False
+TRAIN = True
+LOOP = False
 
 
 #################
@@ -337,62 +338,64 @@ def main():
     # Generate text loop #
     ######################
 
-    print("Mazutalk about to start requests...")
-    time.sleep(10)
+    if LOOP:
 
-    # Keep looking for new input from the webserver every Nth second
-    # Sleep timer
-    N = 5
-    while True:
-        print("Inside mazutalk loop")
-        try:
-            # Get prompts from the web app
-            # response = requests.get('http://web:8000/api_mazu')
+        print("Mazutalk about to start requests...")
+        time.sleep(10)
 
-            # Try with post request and header authorization
-            url = "https://spaceengineering.io/api_mazu/"
-            headers = {
-                "Authorization": "Bearer %s" % os.environ.get("BEARER")
-            }
-            payload = {}
-            response = requests.post(url, headers=headers, json=payload)
-            print(f"Response code: {response.status_code}")
+        # Keep looking for new input from the webserver every Nth second
+        # Sleep timer
+        N = 5
+        while True:
+            print("Inside mazutalk loop")
+            try:
+                # Get prompts from the web app
+                # response = requests.get('http://web:8000/api_mazu')
 
-            data = response.json()
-            print(f"Response:\n{data}")
-            print(len(data["prompts"]))
+                # Try with post request and header authorization
+                url = "https://spaceengineering.io/api_mazu/"
+                headers = {
+                    "Authorization": "Bearer %s" % os.environ.get("BEARER")
+                }
+                payload = {}
+                response = requests.post(url, headers=headers, json=payload)
+                print(f"Response code: {response.status_code}")
 
-            # If new data, step through the prompts and generate sentences
-            if len(data["prompts"]) > 0:
-                for prompt in data['prompts']:
-                    print(f"prompt:\n{prompt}")
-                    creation = int(prompt['pk'])
-                    prompt_text = prompt['fields']['prompt_text']
-                    
-                    sentence_list = text_generator.talk(
-                        prompt_text, max_tokens=MAX_LEN, temperature=0.5
-                    )
-                    sentence_raw = ' '.join(map(str, sentence_list))
-                    print(sentence_raw)
+                data = response.json()
+                print(f"Response:\n{data}")
+                print(len(data["prompts"]))
 
-                    # Save to db
-                    with engine.connect() as conn:
-                        print("mazutalk ai saving to database")
-
-                        conn.execute(
-                            text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
-                            [{"creation": creation, "prompt": prompt_text, "sentence": sentence_raw}],
+                # If new data, step through the prompts and generate sentences
+                if len(data["prompts"]) > 0:
+                    for prompt in data['prompts']:
+                        print(f"prompt:\n{prompt}")
+                        creation = int(prompt['pk'])
+                        prompt_text = prompt['fields']['prompt_text']
+                        
+                        sentence_list = text_generator.talk(
+                            prompt_text, max_tokens=MAX_LEN, temperature=0.5
                         )
-                        conn.commit()
+                        sentence_raw = ' '.join(map(str, sentence_list))
+                        print(sentence_raw)
 
-                # TODO: send POST request back to Web App with all the generated sentences.
-            else:
-                print("mazutalk received no new data")
+                        # Save to db
+                        with engine.connect() as conn:
+                            print("mazutalk ai saving to database")
 
-        except:
-            print("Error: mazutalk cannot connect to web app or db")
+                            conn.execute(
+                                text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
+                                [{"creation": creation, "prompt": prompt_text, "sentence": sentence_raw}],
+                            )
+                            conn.commit()
 
-        time.sleep(N)
+                    # TODO: send POST request back to Web App with all the generated sentences.
+                else:
+                    print("mazutalk received no new data")
+
+            except:
+                print("Error: mazutalk cannot connect to web app or db")
+
+            time.sleep(N)
 
     
 if __name__ == "__main__":

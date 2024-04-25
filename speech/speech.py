@@ -32,7 +32,7 @@ while True:
     last_creation = 0
     sentence = None
 
-    # Update 'last_speech' with highest value from db table 'last'
+    # Update 'last_creation' counter with highest value from db table 'last'
     with engine.connect() as conn:
         result = conn.execute(text(
             "SELECT MAX(last_speech) FROM last;"
@@ -40,7 +40,7 @@ while True:
     for r in result:
         last_creation = r[0]
 
-    # Acquire all the sentences later than counter last_speech
+    # Acquire all the sentences later than counter last_creation
     with engine.connect() as conn:
         result = conn.execute(text(
             "SELECT * FROM speech WHERE creation > %i;" % last_creation
@@ -55,7 +55,7 @@ while True:
 
         # Create new mp3 files if new sentences are found
         if sentence:
-            # First, update the db with last_speech value
+            # First, update the db with last_creation value
             with engine.connect() as conn:
                 conn.execute(text(
                     "INSERT INTO last (last_speech) VALUES (:last_speech);"
