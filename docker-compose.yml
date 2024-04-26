@@ -43,51 +43,51 @@ services:
   #     - ./speech/:/app/
   #     - soundfiles:/soundfiles/
 
-  notebooks:
-    build: ./jupyter
-    tty: true
-    volumes:
-      - ./jupyter/data/:/app/data
-      - ./jupyter/notebooks/:/app/notebooks
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    ports:
-        - "$JUPYTER_PORT:$JUPYTER_PORT"
-        - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
+  # notebooks:
+  #   build: ./jupyter
+  #   tty: true
+  #   volumes:
+  #     - ./jupyter/data/:/app/data
+  #     - ./jupyter/notebooks/:/app/notebooks
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   ports:
+  #       - "$JUPYTER_PORT:$JUPYTER_PORT"
+  #       - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
+  #   env_file:
+  #    - ./.env
+  #   entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
+
+  mazutalk:
+    build: ./mazutalk
+    depends_on:
+      db:
+        condition: service_started
+      # web:
+      #   # condition: service_healthy
+      #   condition: service_started
+    command: python mazutalk.py
     env_file:
-     - ./.env
-    entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
+      - ./.env
+    volumes:
+      - ./mazutalk/:/app
 
-#   mazutalk:
-#     build: ./mazutalk
-#     depends_on:
-#       db:
-#         condition: service_started
-#       # web:
-#       #   # condition: service_healthy
-#       #   condition: service_started
-#     command: python mazutalk.py
-#     env_file:
-#       - ./.env
-#     volumes:
-#       - ./mazutalk/:/app
-
-#   db:
-#     image: postgres:16.2-alpine
-#     volumes:
-#       - db:/var/lib/postgresql/data
-#       - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
-#     environment:
-#       - POSTGRES_DB=postgres
-#       - POSTGRES_USER=postgres
-#       - POSTGRES_PASSWORD=postgres
+  db:
+    image: postgres:16.2-alpine
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
 
-# volumes:
-#   db:
+volumes:
+  db:
   # soundfiles:
