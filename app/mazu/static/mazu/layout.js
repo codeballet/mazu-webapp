@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const span = document.getElementsByClassName("close")[0]
 
     // Check localstorage cookie preference
-    if (localStorage.getItem("cookies") == null) {
+    if (!localStorage.getItem("cookies")) {
         localStorage.setItem("cookies", "undefined")
     }
 

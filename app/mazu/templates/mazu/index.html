@@ -40,8 +40,15 @@
 
     {% elif not request.session.answer %}
 
-        <h3>Mazu is thinking about your message "{{ request.session.prompt }}"...</h3>
-        <div class="loader"></div>
+        <div class="flex-container">
+            <h3>
+                Mazu is thinking about your message "
+                {{ request.session.prompt }}"...
+            </h3>
+        </div>
+        <div class="flex-container">
+            <div class="loader"></div>
+        </div>
 
     {% else %}
 
@@ -53,8 +60,12 @@
             </form>
         </div>
 
-        <h3>Mazu svarade:</h3>
-        <h3>"{{ request.session.prompt }} {{ request.session.answer }}"</h3>
+        <div class="flex-container">
+            <h3>Mazu svarade:</h3>
+        </div>
+        <div class="flex-container">
+            <h3>"{{ request.session.prompt }} {{ request.session.answer }}"</h3>
+        </div>
 
     {% endif %}
 
@@ -112,8 +123,8 @@
 
     {% endif %} -->
 
-    {% block script %}
-        <script src="{% static 'mazu/index.js' %}"></script>
-    {% endblock script %}
-
 {% endblock content %}
+
+{% block script %}
+    <script src="{% static 'mazu/index.js' %}"></script>
+{% endblock script %}
