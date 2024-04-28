@@ -9,28 +9,55 @@
     </head>
     <body>
 
-            {% block nav %}{% endblock %}
+        {% block nav %}
+        {% endblock %}
 
-            <div class="flex-container">
-                {% block heading %}{% endblock %}
-            </div>
-
-            {% if messages %}
-                <div class="flex-container">
-                    <ul class="messages-ul">
-                        {% for message in messages %}
-                        <li class="messages-li">{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-
-            {% block content %}
+        <div class="flex-container">
+            {% block heading %}
             {% endblock %}
+        </div>
 
+        {% if messages %}
             <div class="flex-container">
-                <footer>&copy;Johan Stjernholm 2024</footer>
+                <ul class="messages-ul">
+                    {% for message in messages %}
+                    <li class="messages-li">{{ message }}</li>
+                {% endfor %}
+                </ul>
             </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+
+        <div class="flex-container">
+            <footer>&copy;Johan Stjernholm 2024</footer>
+        </div>
+
+        <!-- The Modal -->
+        <div id="cookie-modal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close">&times;</span>
+                    <h2>Vi använder kakor</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Vi använder endast kakor som är nödvändiga för din säkerhet och websidans funktionalitet.</p>
+                    <p>Vi använder inte kakor som spårar, analyserar, eller skapar statistik på dig.</p>
+                    <p>Genom att använda denna websidan ger du ditt samtycke till vårt användande av kakor.</p>
+                </div>
+                <div class="modal-footer">
+                    <h3>Space Engineering Art Project</h3>
+                </div>
+            </div>
+        
+        </div>
+
+        {% block script %}
+        <script src="{% static 'mazu/layout.js' %}"></script>
+        {% endblock %}
 
     </body>
 </html>

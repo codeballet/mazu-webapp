@@ -31,8 +31,8 @@ LOAD_MODEL = True
 BATCH_SIZE = 32
 EPOCHS = 1
 DATASET_REPETITIONS = 1
-TRAIN = True
-LOOP = False
+TRAIN = False
+LOOP = True
 
 
 #################
