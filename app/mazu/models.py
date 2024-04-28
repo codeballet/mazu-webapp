@@ -9,12 +9,19 @@ class User(AbstractUser):
         return (f"id: {self.id}, username: {self.username}")
 
 
-class Prompt(models.Model):
+class Message(models.Model):
     prompt_text = models.CharField(max_length=80)
+    session_key = models.CharField(max_length=32)
+    answer = models.CharField(max_length=1024)
     # created = models.BigIntegerField(default=0)
 
     def __str__(self):
-        return (f"id: {self.id}, prompt_text: {self.prompt_text}")
+        return (
+            f"id: {self.id}, \
+            session_key: {self.session_key}, \
+            prompt_text: {self.prompt_text}, \
+            answer: {self.answer}"
+        )
 
 
 class Last(models.Model):

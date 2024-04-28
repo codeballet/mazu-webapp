@@ -1,4 +1,5 @@
 {% extends "mazu/layout.html" %}
+{% load static %}
 
 {% block nav %}
 
@@ -26,6 +27,38 @@
 
 {% block content %}
 
+    {% if not request.session.prompt %}
+
+        <div class="flex-container">
+            <form action="{% url 'mazu:message' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input class="button" id="button-send" type="submit" value="Sänd">
+            </form>
+        </div>
+
+
+    {% elif not request.session.answer %}
+
+        <h3>Mazu is thinking about your message "{{ request.session.prompt }}"...</h3>
+        <div class="loader"></div>
+
+    {% else %}
+
+        <div class="flex-container">
+            <form action="{% url 'mazu:message' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input class="button" id="button-send" type="submit" value="Sänd">
+            </form>
+        </div>
+
+        <h3>Mazu svarade:</h3>
+        <h3>"{{ request.session.prompt }} {{ request.session.answer }}"</h3>
+
+    {% endif %}
+
+
     <!-- {% if not user.is_authenticated %}
         <div class="flex-container">
             <p>För att kunna skapa med Mazu måste du först logga in eller registrera dig</p>
@@ -39,17 +72,8 @@
             <input class="button" id="button-wind" type="submit" name="one" value="Blåsigt">
         </form>
     </div> -->
-    
-    <div class="flex-container">
-        <form action="{% url 'mazu:message' %}" method="post">
-            {% csrf_token %}
-            {{ form }}
-            <input class="button" id="button-send" type="submit" value="Sänd">
-        </form>
-    </div>
 
-
-    {% if prompts %}
+    <!-- {% if prompts %}
     <div class="flex-container">
         <h3>Mazu hörde dig säga:</h3>
     </div>
@@ -61,13 +85,7 @@
             {% endfor %}
         </div>
     </div>
-    {% endif %}
-
-    {% if not prompts %}
-    <div class="flex-container">
-        <h3>Du har inte sagt något än...</h3>
-    </div>
-    {% endif %}
+    {% endif %} -->
 
     <!-- TODO: restore authentication requirements -->
     <!-- {% if user.is_authenticated %}
@@ -93,5 +111,9 @@
         {% endif %}
 
     {% endif %} -->
+
+    {% block script %}
+        <script src="{% static 'mazu/index.js' %}"></script>
+    {% endblock script %}
 
 {% endblock content %}

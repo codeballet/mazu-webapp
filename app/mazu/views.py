@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django import forms
 from django.http import HttpResponseRedirect
 from django.http import Http404
 from django.urls import reverse
@@ -16,88 +15,8 @@ import json
 import re
 import os
 
-from .models import Prompt, Last, User
-
-
-#########
-# Forms #
-#########
-
-class LoginForm(forms.Form):
-    username = forms.CharField(
-        label='',
-        max_length=50,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'text',
-                'placeholder': 'Användarnamn...',
-                'autofocus': 'autofocus'
-            }
-        )
-    )
-    password = forms.CharField(
-        label='',
-        max_length=50,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'password',
-                'placeholder': 'Lösenord...'
-            }
-        )
-    )
-
-
-class MessageForm(forms.Form):
-    message = forms.CharField(
-        label='',
-        max_length=100,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'text',
-                'placeholder': 'Säg något...',
-            }
-        )
-    )
-
-
-class RegisterForm(forms.Form):
-    username = forms.CharField(
-        label='',
-        max_length=50,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'text',
-                'placeholder': 'Användarnamn...',
-                'autofocus': 'autofocus'
-            }
-        )
-    )
-    password = forms.CharField(
-        label='',
-        max_length=50,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'password',
-                'placeholder': 'Lösenord...'
-            }
-        )
-    )
-    confirmation = forms.CharField(
-        label='',
-        max_length=50,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'textfield',
-                'type': 'password',
-                'placeholder': 'Skriv lösenordet igen...'
-            }
-        )
-    )
+from .models import Message, Last, User
+from .forms import LoginForm, MessageForm, RegisterForm
 
 
 #########
@@ -106,13 +25,33 @@ class RegisterForm(forms.Form):
 
 def index(request):
     form = MessageForm()
+    print(f"session: {request.session.session_key}")
 
-    if "prompts" not in request.session:
-        request.session["prompts"] = []
+    # Initiate "prompt" and "answer" in session
+    if "prompt" not in request.session:
+        request.session["prompt"] = ''
+    if "answer" not in request.session:
+        request.session["answer"] = ''
+
+    # Get the last existing entry from database
+    try:
+        message = Message.objects.filter(
+            session_key=request.session.session_key
+            ).order_by('-id')[:1][0]
+        print(f"\nfrom db:\n{message}\n")
+    except:
+        print("No session_key recorded in db yet")
+
+    # Send answer to template
+    try:
+        if message.answer:
+            request.session["prompt"] = message.prompt_text
+            request.session["answer"] = message.answer
+    except:
+        print("No answer from last prompt yet")
 
     return render(request, 'mazu/index.html', {
         "form": form,
-        "prompts": request.session["prompts"],
     })
 
 
@@ -169,13 +108,20 @@ def message(request):
             print(f"\nForm Content: {prompt}\n")
 
             # Store the prompt in the session
-            request.session["prompts"] += [prompt]
+            # request.session["prompts"] += [prompt]
 
-            # Save form content to database
-            # Add to prompt_text in Prompt model
+            # Save form content and session_key to database
             try:
-                p = Prompt(prompt_text=prompt)
-                p.save()
+                new_message = Message(
+                    prompt_text=prompt,
+                    session_key=request.session.session_key,
+                )
+                new_message.save()
+
+                # Set session with new prompt and empty answer
+                request.session["prompt"] = prompt
+                request.session["answer"] = ''
+
             except Error as e:
                 return JsonResponse({
                     "error": e,
@@ -251,77 +197,110 @@ def weather(request):
 
 @csrf_exempt
 def api_mazu(request):
+    # Check if request authorization bearer token is valid
+    authorization = request.headers.get("Authorization")
+    bearer = authorization.split(' ')[1]
+    if bearer != os.environ.get("BEARER"):
+        raise Http404("Error: request not authorized")
+
+    # Deal with POST requests
     if request.method == "POST":
-        # Check if authorization bearer token is valid
-        authorization = request.headers.get("Authorization")
-        bearer = authorization.split(' ')[1]
-        if bearer != os.environ.get("BEARER"):
-            raise Http404("Error: request not authorized")
+        # Update database with answers from Mazu
+        received_id = request.POST.get('id')
+        received_prompt = request.POST.get('prompt')
+        received_answer = request.POST.get('answer')
 
-        # Only return new prompts that have not been sent before
-        # Check if db has a record of the last prompt sent
+        # Update db with answer from Mazu
         try:
-            last = Last.objects.all().last()
-            if last is None:
-                # db is empty, set 0 as reference value
-                value = Last(last_object=0)
-                value.save()
-                # print(f"api_mazu initiated last_object: {l}")
+            Message.objects.filter(id=received_id).update(answer=received_answer)
+            
+            # Update session variables
+            request.session["prompt"] = received_prompt
+            request.session["answer"] = received_answer
 
-        except Error as e:
+            form = MessageForm
+            return render(request, 'mazu/index.html', {
+                "form": form,
+            })
+
+            return JsonResponse({
+                "message": "successfully updated db",
+            }, status=201)
+
+        except IntegrityError as e:
             return JsonResponse({
                 "error": e,
             }, status=500)
 
-        # Acquire all the new values from db since last check
-        try:
-            # First check the id for the last acquired prompt
-            last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
-            # print(f"last:\n{last}")
-        except Error as e:
-            return JsonResponse({
-                "error": e,
-            }, status=500)
 
-        # Acquire all prompts created after the previously last prompt
-        try:
-            # But first check if there are any new prompts
-            if Prompt.objects.filter(id__gt=last).exists():
-                data = Prompt.objects.filter(id__gt=last).order_by("id")
-                print(f"Acquired new data: \n{data}")
-            # if Prompt.objects.filter(id__gt=0).exists():
-            #     data = Prompt.objects.filter(id__gt=0).order_by("id")
-            #     print(f"Acquired new data:\n{data}")
-            else:
-                # Return an empty list
-                print("No new data to acquire, api_mazu returning empty list of prompts")
-                return JsonResponse({
-                    "prompts": [],
-                }, status=200)
+    # Deal with GET requests:
+    # Only return new prompts that have not been sent before
+    # Check if db has a record of the last prompt sent
+    print("GET request received")
+    try:
+        last = Last.objects.all().last()
+        if last is None:
+            # db is empty, set 0 as reference value in Last
+            value = Last(last_object=0)
+            value.save()
+            # print(f"api_mazu initiated last_object: {l}")
 
-        except Error as e:
-            return JsonResponse({
-                "error": e,
-            }, status=500)
-
-        # save the new last object's id to db, if there is one
-        try:
-            if len(data) > 0:
-                new_last = data.values()[len(data) - 1]["id"]
-                # print(data.values()[len(data) - 1])
-                nl = Last(last_object=new_last)
-                nl.save()
-                # print("Saved new id for last prompt")
-        except Error as e:
-            return JsonResponse({
-                "error": e,
-            }, status=500)
-
-        # Send json response to request
-        serialized_data = serializers.serialize("json", data)
-        data_list = json.loads(serialized_data)
+    except Error as e:
         return JsonResponse({
-            "prompts": data_list,
-        }, status=200)
+            "error": e,
+        }, status=500)
 
-    raise Http404("Error: POST request required")
+    # Acquire all the new entries from db since last check
+    try:
+        # First check the entry id for the last acquired prompt
+        last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
+        # print(f"last:\n{last}")
+    except Error as e:
+        return JsonResponse({
+            "error": e,
+        }, status=500)
+
+    # Acquire all entries created after the previously last prompt
+    try:
+        # First check if there are any new prompts
+        if Message.objects.filter(id__gt=last).exists():
+            # Then get the entries
+            data = Message.objects.filter(id__gt=last).order_by("id")
+            print(f"Acquired new data: \n{data}")
+        else:
+            # Return an empty list if there are no new entries
+            print("No new data to acquire, api_mazu returning empty list of messages")
+            return JsonResponse({
+                "messages": [],
+            }, status=200)
+
+    except Error as e:
+        return JsonResponse({
+            "error": e,
+        }, status=500)
+
+    # save the new last object's id to db, if there is one
+    try:
+        if len(data) > 0:
+            new_last = data.values()[len(data) - 1]["id"]
+            nl = Last(last_object=new_last)
+            nl.save()
+    except Error as e:
+        return JsonResponse({
+            "error": e,
+        }, status=500)
+
+    # Send json response with the new entries
+    serialized_data = serializers.serialize("json", data)
+    data_list = json.loads(serialized_data)
+    return JsonResponse({
+        "messages": data_list,
+    }, status=200)
+
+
+# Return session variable "answer"
+def api_answer(request):
+    message = Message.objects.filter(session_key=request.session.session_key).last()
+    return JsonResponse({
+        "answer": message.answer,
+    }, status=200)

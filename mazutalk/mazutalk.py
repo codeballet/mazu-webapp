@@ -346,31 +346,32 @@ def main():
         # Keep looking for new input from the webserver every Nth second
         # Sleep timer
         N = 5
+
+        # Define request variables
+        url = "http://web:8000/api_mazu"
+        # url = "https://spaceengineering.io/api_mazu/"
+        headers = {
+            "Authorization": "Bearer %s" % os.environ.get("BEARER")
+        }
+
         while True:
             print("Inside mazutalk loop")
             try:
                 # Get prompts from the web app
-                # response = requests.get('http://web:8000/api_mazu')
-
-                # Try with post request and header authorization
-                url = "https://spaceengineering.io/api_mazu/"
-                headers = {
-                    "Authorization": "Bearer %s" % os.environ.get("BEARER")
-                }
                 payload = {}
-                response = requests.post(url, headers=headers, json=payload)
-                print(f"Response code: {response.status_code}")
+                response = requests.get(url, headers=headers, json=payload)
+                print(f"GET response code: {response.status_code}")
 
                 data = response.json()
                 print(f"Response:\n{data}")
-                print(len(data["prompts"]))
+                print(len(data["messages"]))
 
                 # If new data, step through the prompts and generate sentences
-                if len(data["prompts"]) > 0:
-                    for prompt in data['prompts']:
-                        print(f"prompt:\n{prompt}")
-                        creation = int(prompt['pk'])
-                        prompt_text = prompt['fields']['prompt_text']
+                if len(data["messages"]) > 0:
+                    for message in data['messages']:
+                        print(f"message:\n{message}")
+                        creation = int(message['pk'])
+                        prompt = message['fields']['prompt_text']
                         
                         sentence_list = text_generator.talk(
                             prompt_text, max_tokens=MAX_LEN, temperature=0.5
@@ -388,7 +389,20 @@ def main():
                             )
                             conn.commit()
 
-                    # TODO: send POST request back to Web App with all the generated sentences.
+                        # TODO: send POST request back to Web App with all the generated sentences.
+                        try:
+                            # Send POST request back to the web app
+                            payload = {
+                                "id": message['fields']['id'],
+                                "session_key": message['fields']['session_key'],
+                                "prompt_text": prompt,
+                                "answer": sentence_raw,
+                            }
+                            response = requests.post(url, headers=headers, json=payload)
+                            print(f"POST response: {response}")
+                        except:
+                            print("Failed to send POST request")
+                
                 else:
                     print("mazutalk received no new data")
 
