@@ -27,7 +27,7 @@
 
 {% block content %}
 
-    {% if not request.session.prompt %}
+    {% if request.session.prompt == '' and request.session.answer == '' %}
 
         <div class="flex-container">
             <form action="{% url 'mazu:message' %}" method="post">
@@ -37,13 +37,11 @@
             </form>
         </div>
 
-
-    {% elif not request.session.answer %}
+    {% elif request.session.prompt != '' and request.session.answer == '' %}
 
         <div class="flex-container">
             <h3>
-                Mazu is thinking about your message "
-                {{ request.session.prompt }}"...
+                Mazu funderar på ditt meddelande "{{ request.session.prompt }}"...
             </h3>
         </div>
         <div class="flex-container">

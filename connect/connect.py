@@ -4,14 +4,11 @@ import requests
 import os
 import json
 
+# Wait for web app to start
 time.sleep(5)
 
 # Connect to db
 engine = create_engine("postgresql+psycopg://postgres:postgres@db/postgres")
-
-
-print("Starting connect...")
-
 
 # Define request variables
 url = "http://web:8000/api_mazu/"
@@ -21,8 +18,8 @@ headers = {
 }
 
 
+# Keep checking for new prompts from web app
 while True:
-    # Get prompts from the web app
     try:
         payload = {}
         response = requests.get(url, headers=headers, json=payload)
@@ -46,7 +43,8 @@ while True:
         for message in data['messages']:
             print(f"message:\n{message}")
             creation = int(message['pk'])
-            prompt = message['fields']['prompt_text']
+            session_key = message['fields']['session_key']
+            prompt = message['fields']['prompt']
             print(f"Prompt: {prompt}")
             
             # Create a fake Mazu response for testing
@@ -60,14 +58,14 @@ while True:
 
             #     conn.execute(
             #         text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
-            #         [{"creation": creation, "prompt": prompt_text, "sentence": sentence_raw}],
+            #         [{"creation": creation, "prompt": prompt, "sentence": sentence_raw}],
             #     )
             #     conn.commit()
 
             # Send POST request back to the web app
             payload = {
-                "id": message['pk'],
-                "session_key": message['fields']['session_key'],
+                "id": creation,
+                "session_key": session_key,
                 "prompt": prompt,
                 "answer": sentence_raw,
             }

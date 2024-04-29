@@ -25,30 +25,35 @@ from .forms import LoginForm, MessageForm, RegisterForm
 
 def index(request):
     form = MessageForm()
-    print(f"session: {request.session.session_key}")
+    print(f"index view session: {request.session.session_key}")
 
-    # Initiate "prompt" and "answer" in session
+    # Initiate session variables
     if "prompt" not in request.session:
         request.session["prompt"] = ''
     if "answer" not in request.session:
         request.session["answer"] = ''
 
-    # Get the last existing entry from database
+    # Attempt to get the last existing entry from database
     try:
-        message = Message.objects.filter(
-            session_key=request.session.session_key
-            ).order_by('-id')[:1][0]
-        print(f"\nfrom db:\n{message}\n")
-    except:
-        print("No session_key recorded in db yet")
+        if len(Message.objects.all()) > 0:
+            message = Message.objects.filter(
+                session_key=request.session.session_key
+                ).order_by('-id')[:1][0]
 
-    # Send answer to template
-    try:
-        if message.answer:
-            request.session["prompt"] = message.prompt_text
+            print(f"\nindex view, latest message entry from db:\n{message}\n")
+
+            # Set session variables
+            request.session["prompt"] = message.prompt
             request.session["answer"] = message.answer
-    except:
-        print("No answer from last prompt yet")
+        else:
+            print("index view found no db entries yet")
+
+    except IndexError as e:
+        print(f"error: {e}")
+
+        # Reset session variables
+        request.session["prompt"] = ''
+        request.session["answer"] = ''
 
     return render(request, 'mazu/index.html', {
         "form": form,
@@ -105,7 +110,7 @@ def message(request):
         if form.is_valid():
             # Process the data in form.cleaned_data
             prompt = form.cleaned_data['message']
-            print(f"\nForm Content: {prompt}\n")
+            print(f"\nmessage view received Form Content:\n{prompt}\n")
 
             # Store the prompt in the session
             # request.session["prompts"] += [prompt]
@@ -113,7 +118,7 @@ def message(request):
             # Save form content and session_key to database
             try:
                 new_message = Message(
-                    prompt_text=prompt,
+                    prompt=prompt,
                     session_key=request.session.session_key,
                 )
                 new_message.save()
@@ -182,9 +187,9 @@ def register(request):
 def weather(request):
     if request.method == 'POST' and request.user.is_authenticated:
         if request.POST.get('zero'):
-            print(f"\nReceived: {request.POST['zero']}\n")
+            print(f"\nweather view received: {request.POST['zero']}\n")
         elif request.POST.get('one'):
-            print(f"\nReceived: {request.POST['one']}\n")
+            print(f"\nweather view received: {request.POST['one']}\n")
         # Redirect to new URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
@@ -205,6 +210,7 @@ def api_mazu(request):
 
     # Deal with POST requests
     if request.method == "POST":
+        print("api_mazu POST request received")
         # Update database with answers from Mazu
         received_id = request.POST.get('id')
         received_prompt = request.POST.get('prompt')
@@ -218,11 +224,12 @@ def api_mazu(request):
             request.session["prompt"] = received_prompt
             request.session["answer"] = received_answer
 
-            form = MessageForm
-            return render(request, 'mazu/index.html', {
-                "form": form,
-            })
+            # form = MessageForm
+            # return render(request, 'mazu/index.html', {
+            #     "form": form,
+            # })
 
+            # Respond to API request
             return JsonResponse({
                 "message": "successfully updated db",
             }, status=201)
@@ -236,7 +243,7 @@ def api_mazu(request):
     # Deal with GET requests:
     # Only return new prompts that have not been sent before
     # Check if db has a record of the last prompt sent
-    print("GET request received")
+    print("api_mazu GET request received")
     try:
         last = Last.objects.all().last()
         if last is None:
@@ -266,10 +273,10 @@ def api_mazu(request):
         if Message.objects.filter(id__gt=last).exists():
             # Then get the entries
             data = Message.objects.filter(id__gt=last).order_by("id")
-            print(f"Acquired new data: \n{data}")
+            print(f"api_mazu acquired new data: \n{data}")
         else:
             # Return an empty list if there are no new entries
-            print("No new data to acquire, api_mazu returning empty list of messages")
+            print("api_mazu has no new data to acquire, returning empty list of messages")
             return JsonResponse({
                 "messages": [],
             }, status=200)
@@ -279,7 +286,7 @@ def api_mazu(request):
             "error": e,
         }, status=500)
 
-    # save the new last object's id to db, if there is one
+    # Udate "last_object" in the Last db table, if there is one
     try:
         if len(data) > 0:
             new_last = data.values()[len(data) - 1]["id"]
@@ -298,9 +305,40 @@ def api_mazu(request):
     }, status=200)
 
 
-# Return session variable "answer"
+# Receiving API calls from index js script while waiting for answer.
 def api_answer(request):
-    message = Message.objects.filter(session_key=request.session.session_key).last()
-    return JsonResponse({
-        "answer": message.answer,
-    }, status=200)
+    # Acquire latest message for the particular user session
+    try:
+        message = Message.objects.filter(session_key=request.session.session_key).last()
+        if message:
+            return JsonResponse({
+                "answer": message.answer,
+            }, status=200)
+        else:
+            return JsonResponse({
+                "answer": '',
+            }, status=200)
+    except AttributeError:
+        # Reset session values
+        request.session["prompt"] = ''
+        request.session["answer"] = ''
+
+        # Return error code
+        return JsonResponse({
+            "error": "No answer found in db",
+        }, status=500)
+
+
+# Called by index js scipt when Mazu has not answered for a long time
+def api_reset(request):
+    if request.method == "POST":
+
+        request.session["prompt"] = ''
+        request.session["answer"] = ''
+
+        messages.info(request, "Mazu är inte tillgänglig just nu.")
+        messages.info(request, 'Kontakta Johan Stjernholm för nästa utställning av Mazu.')
+
+        return JsonResponse({
+            "message": "Session variables reset",
+        }, status=200)

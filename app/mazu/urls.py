@@ -11,5 +11,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('weather/', views.weather, name='weather'),
     path('api_mazu/', views.api_mazu, name='api_mazu'),
-    path('api_answer/', views.api_answer, name='api_answer')
+    path('api_answer/', views.api_answer, name='api_answer'),
+    path('api_reset/', views.api_reset, name='api_reset'),
 ]

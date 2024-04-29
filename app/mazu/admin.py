@@ -6,7 +6,7 @@ from .models import Message, Last, User
 
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("id", "session_key", "prompt_text", "answer")
+    list_display = ("id", "session_key", "prompt", "answer")
 
 
 class LastAdmin(admin.ModelAdmin):
