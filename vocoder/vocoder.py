@@ -15,6 +15,10 @@ MP3_DIR = "/soundfiles/"
 WAV_DIR = "/soundfiles/"
 SYN_DIR = "./syn_files/"
 
+# Vocoder settings
+PITCH = 1.4
+DURATION = 1.4
+
 # initialize vocoder
 vocoder = wv.World()
 
@@ -49,10 +53,8 @@ def synthesize(file, number):
     # encode audio
     dat = vocoder.encode(sample_rate, audio, f0_method='harvest', is_requiem=True)
 
-    # dat = vocoder.scale_pitch(dat, 1.5)
-    dat = vocoder.scale_pitch(dat, 1.4)
-    # dat = vocoder.scale_duration(dat, 2)
-    dat = vocoder.scale_duration(dat, 1.6)
+    dat = vocoder.scale_pitch(dat, PITCH)
+    dat = vocoder.scale_duration(dat, DURATION)
 
     dat = vocoder.decode(dat)
     output = dat["out"]
