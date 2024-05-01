@@ -341,14 +341,14 @@ def main():
     if LOOP:
 
         print("Mazutalk about to start requests...")
-        time.sleep(10)
+        time.sleep(5)
 
         # Keep looking for new input from the webserver every Nth second
         # Sleep timer
         N = 5
 
         # Define request variables
-        url = "http://web:8000/api_mazu"
+        url = "http://web:8000/api_mazu/"
         # url = "https://spaceengineering.io/api_mazu/"
         headers = {
             "Authorization": "Bearer %s" % os.environ.get("BEARER")
@@ -358,56 +358,70 @@ def main():
             print("Inside mazutalk loop")
             try:
                 # Get prompts from the web app
-                payload = {}
-                response = requests.get(url, headers=headers, json=payload)
+                response = requests.get(url, headers=headers)
                 print(f"GET response code: {response.status_code}")
 
                 data = response.json()
                 print(f"Response:\n{data}")
                 print(len(data["messages"]))
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt)
+            except requests.exceptions.RequestException as err:
+                print ("OOps: Something Else",err)
 
-                # If new data, step through the prompts and generate sentences
+            try:
+                # If new data, step through the prompts and generate answers
                 if len(data["messages"]) > 0:
                     for message in data['messages']:
                         print(f"message:\n{message}")
-                        creation = int(message['pk'])
-                        prompt = message['fields']['prompt_text']
+                        message_id = int(message['pk'])
+                        session_key = message['fields']['prompt']
+                        prompt = message['fields']['prompt']
                         
-                        sentence_list = text_generator.talk(
-                            prompt_text, max_tokens=MAX_LEN, temperature=0.5
+                        answer_list = text_generator.talk(
+                            prompt, max_tokens=MAX_LEN, temperature=0.5
                         )
-                        sentence_raw = ' '.join(map(str, sentence_list))
-                        print(sentence_raw)
+                        answer_raw = ' '.join(map(str, answer_list))
+                        print(answer_raw)
 
                         # Save to db
                         with engine.connect() as conn:
                             print("mazutalk ai saving to database")
 
                             conn.execute(
-                                text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
-                                [{"creation": creation, "prompt": prompt_text, "sentence": sentence_raw}],
+                                text("INSERT INTO message (message_id, prompt, answer) VALUES (:message_id, :prompt, :answer);"), 
+                                [{"message_id": message_id, "prompt": prompt, "answer": answer_raw}],
                             )
                             conn.commit()
 
-                        # TODO: send POST request back to Web App with all the generated sentences.
                         try:
                             # Send POST request back to the web app
                             payload = {
-                                "id": message['fields']['id'],
-                                "session_key": message['fields']['session_key'],
-                                "prompt_text": prompt,
-                                "answer": sentence_raw,
+                                "id": message_id,
+                                "session_key": session_key,
+                                "prompt": prompt,
+                                "answer": answer_raw,
                             }
-                            response = requests.post(url, headers=headers, json=payload)
+                            response = requests.post(url, headers=headers, data=payload)
                             print(f"POST response: {response}")
-                        except:
-                            print("Failed to send POST request")
+                        except requests.exceptions.HTTPError as errh:
+                            print ("Http Error:",errh)
+                        except requests.exceptions.ConnectionError as errc:
+                            print ("Error Connecting:",errc)
+                        except requests.exceptions.Timeout as errt:
+                            print ("Timeout Error:",errt)
+                        except requests.exceptions.RequestException as err:
+                            print ("OOps: Something Else",err)
                 
                 else:
                     print("mazutalk received no new data")
 
             except:
-                print("Error: mazutalk cannot connect to web app or db")
+                print("Error: mazutalk cannot connect to db")
 
             time.sleep(N)
 

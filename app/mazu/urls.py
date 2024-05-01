@@ -12,6 +12,4 @@ urlpatterns = [
     path('weather/', views.weather, name='weather'),
     path('api_mazu/', views.api_mazu, name='api_mazu'),
     path('api_answer/', views.api_answer, name='api_answer'),
-    path('api_reset/', views.api_reset, name='api_reset'),
-    path('api_prompt/', views.api_prompt, name='api_prompt'),
 ]

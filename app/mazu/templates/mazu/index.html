@@ -27,7 +27,17 @@
 
 {% block content %}
 
-    {% if prompt == '' and answer == '' %}
+    {% if not request.session.mazu_active %}
+
+        <div class="flex-container" id="index-form-inactive">
+            <form action="{% url 'mazu:message' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input class="button" id="button-send" type="submit" value="Sänd">
+            </form>
+        </div>
+
+    {% elif prompt == '' and answer == '' %}
 
         <div class="flex-container" id="index-form-empty">
             <form action="{% url 'mazu:message' %}" method="post">

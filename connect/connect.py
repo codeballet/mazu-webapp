@@ -21,8 +21,7 @@ headers = {
 # Keep checking for new prompts from web app
 while True:
     try:
-        payload = {}
-        response = requests.get(url, headers=headers, json=payload)
+        response = requests.get(url, headers=headers)
         print(f"GET response code: {response.status_code}")
 
         data = response.json()
@@ -37,37 +36,37 @@ while True:
     except requests.exceptions.RequestException as err:
         print ("OOps: Something Else",err)
 
-    # If new data, step through the prompts and generate sentences
+    # If new data, step through the prompts and generate answers
     if len(data["messages"]) > 0:
         counter = 0
         for message in data['messages']:
             print(f"message:\n{message}")
-            creation = int(message['pk'])
+            message_id = int(message['pk'])
             session_key = message['fields']['session_key']
             prompt = message['fields']['prompt']
             print(f"Prompt: {prompt}")
             
             # Create a fake Mazu response for testing
-            sentence_raw = f"Fake Mazu answer {counter}"
+            answer_raw = f"Fake Mazu answer {counter}"
             counter += 1
-            print(sentence_raw)
+            print(answer_raw)
 
             # Save to db
             # with engine.connect() as conn:
             #     print("mazutalk ai saving to database")
 
             #     conn.execute(
-            #         text("INSERT INTO speech (creation, prompt, sentence) VALUES (:creation, :prompt, :sentence);"), 
-            #         [{"creation": creation, "prompt": prompt, "sentence": sentence_raw}],
+            #         text("INSERT INTO message (message_id, prompt, answer) VALUES (:message_id, :prompt, :answer);"), 
+            #         [{"message_id": message_id, "prompt": prompt, "answer": answer_raw}],
             #     )
             #     conn.commit()
 
             # Send POST request back to the web app
             payload = {
-                "id": creation,
+                "id": message_id,
                 "session_key": session_key,
                 "prompt": prompt,
-                "answer": sentence_raw,
+                "answer": answer_raw,
             }
 
             # requests.post(url, headers=headers, data=payload)

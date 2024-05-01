@@ -19,9 +19,13 @@ from .models import Message, Last, User
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
+MAZU_ACTIVE = False
+
+
 #########
 # Views #
 #########
+
 
 def index(request):
     form = MessageForm()
@@ -32,6 +36,7 @@ def index(request):
     print(f"Session key: {request.session.session_key}")
 
     # Initiate session variables
+    request.session["mazu_active"] = MAZU_ACTIVE
     if "prompt" not in request.session:
         request.session["prompt"] = ''
     if "answer" not in request.session:
@@ -42,9 +47,9 @@ def index(request):
         if Message.objects.filter(session_key=request.session.session_key).exists():
             message = Message.objects.filter(
                 session_key=request.session.session_key
-                ).order_by('-id')[:1][0]
+            ).order_by('-id')[:1][0]
 
-            print(f"\nindex view, latest message entry from db:\n{message}\n")
+            print(f"\nindex view, latest message entry from db: \n{message}\n")
 
             # Set session variables
             request.session["prompt"] = message.prompt
@@ -111,16 +116,23 @@ def logout_view(request):
 
 
 def message(request):
-    # TODO: restore authentication
     # if request.method == 'POST' and request.user.is_authenticated:
     if request.method == 'POST':
+
+        # Only move ahead if Mazu is active
+        if not request.session.get("mazu_active"):
+            messages.info(request, "Mazu är inte tillgänglig just nu.")
+            messages.info(request, 'Kontakta Johan Stjernholm för nästa utställning med Mazu.')
+
+            return HttpResponseRedirect(reverse('mazu:index'))
+
         form = MessageForm(request.POST)
 
         # Check if form data is valid
         if form.is_valid():
             # Process the data in form.cleaned_data
             prompt = form.cleaned_data['message']
-            print(f"\nmessage view received Form Content:\n{prompt}\n")
+            print(f"\nmessage view received Form Content: \n{prompt}\n")
 
             # Store the prompt in the session
             # request.session["prompts"] += [prompt]
@@ -138,7 +150,7 @@ def message(request):
                 request.session["answer"] = ''
 
             except Error as e:
-                print(f"message view error:\n{e}")
+                print(f"message view error: \n{e}")
                 return HttpResponseRedirect(reverse('mazu:index'))
 
             # Redirect to new URL
@@ -222,14 +234,12 @@ def api_mazu(request):
         print("api_mazu POST request received")
         # Update database with answers from Mazu
         received_id = request.POST.get('id')
-        received_prompt = request.POST.get('prompt')
         received_answer = request.POST.get('answer')
-        received_key = request.POST.get('session_key')
 
         # Update message table in db with answer from Mazu
         try:
             Message.objects.filter(id=received_id).update(answer=received_answer)
-            
+
             return JsonResponse({
                 "message": "Successfully updated db",
             }, status=200)
@@ -238,7 +248,6 @@ def api_mazu(request):
             return JsonResponse({
                 "error": e,
             }, status=500)
-
 
     # Deal with GET requests:
     # Only return new prompts that have not been sent before
@@ -331,26 +340,3 @@ def api_answer(request):
             return JsonResponse({
                 "error": "No answer found in db",
             }, status=500)
-
-
-def api_prompt(request):
-    print("api_prompt called")
-    print(f"returning: {request.session.get('prompt')}")
-    return JsonResponse({
-        "prompt": request.session.get("prompt"),
-    }, status=200)
-
-
-# Called by index js scipt when Mazu has not answered for a long time
-def api_reset(request):
-    if request.method == "POST":
-
-        request.session["prompt"] = ''
-        request.session["answer"] = ''
-
-        messages.info(request, "Mazu är inte tillgänglig just nu.")
-        messages.info(request, 'Kontakta Johan Stjernholm för nästa utställning av Mazu.')
-
-        return JsonResponse({
-            "message": "Session variables reset",
-        }, status=200)

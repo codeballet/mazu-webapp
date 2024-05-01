@@ -1,11 +1,11 @@
-CREATE TABLE speech
+CREATE TABLE message
 (
-    creation INTEGER,
+    message_id INTEGER,
     prompt VARCHAR(255),
-    sentence VARCHAR(512)
+    answer VARCHAR(512)
 );
 
 CREATE TABLE last
 (
-    last_speech INTEGER
+    last_message_id INTEGER
 );
