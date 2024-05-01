@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // counter = 0;
 
-                url = 'http://localhost:8000/api_answer/';
+                // url = 'http://localhost:8000/api_answer/';
+                url = 'https://spaceengineering.io/api_answer/';
                 fetch(url, {
                     method: 'post',
                     headers: {'X-CSRFToken': csrftoken},

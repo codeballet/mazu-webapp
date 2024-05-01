@@ -348,8 +348,8 @@ def main():
         N = 5
 
         # Define request variables
-        url = "http://web:8000/api_mazu/"
-        # url = "https://spaceengineering.io/api_mazu/"
+        # url = "http://web:8000/api_mazu/"
+        url = "https://spaceengineering.io/api_mazu/"
         headers = {
             "Authorization": "Bearer %s" % os.environ.get("BEARER")
         }

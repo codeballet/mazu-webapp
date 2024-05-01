@@ -19,7 +19,7 @@ from .models import Message, Last, User
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
-MAZU_ACTIVE = False
+MAZU_ACTIVE = True
 
 
 #########
