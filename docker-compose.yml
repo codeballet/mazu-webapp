@@ -3,6 +3,7 @@ services:
   web:
     build: ./app
     command: python manage.py runserver 0.0.0.0:8000
+    # command: python -m gunicorn mazuproject.asgi:application -k uvicorn.workers.UvicornWorker --reload --bind 0.0.0.0:8000
     volumes:
       - ./app/:/usr/src/app/
     ports:

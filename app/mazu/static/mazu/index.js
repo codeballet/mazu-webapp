@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-
     // Get csrf token
     function getCookie(name) {
         let cookieValue = null;
@@ -39,45 +38,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    respondToVisibility(document.querySelector(".loader"), () => {
-        console.log("The loader class element is now visible!");
+    try {
+        respondToVisibility(document.querySelector(".loader"), () => {
+            console.log("The loader class element is now visible!");
+        
+            // Check for an answer
+            function check_answer() {
 
-        let counter = 0
+                // counter = 0;
 
-        // Start checking for an answer to prompt
-        const check_answer = () => {
-            fetch('http://localhost:8000/api_answer/', {
-                method: 'get',
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-
-                // After ten tries, reset the index page
-                if (counter == 10) {
-                    fetch('http://localhost:8000/api_reset/', {
-                        method: 'post',
-                        headers: {'X-CSRFToken': csrftoken},
-                        mode: 'same-origin'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
+                url = 'http://localhost:8000/api_answer/';
+                fetch(url, {
+                    method: 'post',
+                    headers: {'X-CSRFToken': csrftoken},
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+    
+                    if (data.answer != '') {
                         location.reload();
-                    })
+                    }
+                })
+                .catch(error => console.log(error));
+            }
+    
+            setInterval(check_answer, 3000);
+    
+        });
+    
+    }
+    catch(err) {
+        console.log('Loader class not visible.');
+    }
 
-                }
-
-                counter++;
-
-                if (data.answer != '') {
-                    location.reload();
-                }
-            });
-        }
-
-        setInterval(check_answer, 3000);
-
-    });
-
-})
+});

@@ -13,7 +13,6 @@ class Message(models.Model):
     prompt = models.CharField(max_length=80)
     session_key = models.CharField(max_length=32)
     answer = models.CharField(max_length=1024)
-    # created = models.BigIntegerField(default=0)
 
     def __str__(self):
         return (

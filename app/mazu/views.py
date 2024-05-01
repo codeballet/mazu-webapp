@@ -25,7 +25,11 @@ from .forms import LoginForm, MessageForm, RegisterForm
 
 def index(request):
     form = MessageForm()
-    print(f"index view session: {request.session.session_key}")
+
+    print("\nindex view starting:")
+    print(f"Prompt: {request.session.get('prompt')}")
+    print(f"Answer: {request.session.get('answer')}")
+    print(f"Session key: {request.session.session_key}")
 
     # Initiate session variables
     if "prompt" not in request.session:
@@ -35,7 +39,7 @@ def index(request):
 
     # Attempt to get the last existing entry from database
     try:
-        if len(Message.objects.all()) > 0:
+        if Message.objects.filter(session_key=request.session.session_key).exists():
             message = Message.objects.filter(
                 session_key=request.session.session_key
                 ).order_by('-id')[:1][0]
@@ -46,7 +50,11 @@ def index(request):
             request.session["prompt"] = message.prompt
             request.session["answer"] = message.answer
         else:
-            print("index view found no db entries yet")
+            print("index view found no entry for session_key in db")
+
+            # Reset session variables
+            request.session["prompt"] = ''
+            request.session["answer"] = ''
 
     except IndexError as e:
         print(f"error: {e}")
@@ -57,6 +65,8 @@ def index(request):
 
     return render(request, 'mazu/index.html', {
         "form": form,
+        "prompt": request.session.get("prompt"),
+        "answer": request.session.get("answer"),
     })
 
 
@@ -128,9 +138,8 @@ def message(request):
                 request.session["answer"] = ''
 
             except Error as e:
-                return JsonResponse({
-                    "error": e,
-                }, status=500)
+                print(f"message view error:\n{e}")
+                return HttpResponseRedirect(reverse('mazu:index'))
 
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))
@@ -190,7 +199,7 @@ def weather(request):
             print(f"\nweather view received: {request.POST['zero']}\n")
         elif request.POST.get('one'):
             print(f"\nweather view received: {request.POST['one']}\n")
-        # Redirect to new URL
+        # Redirect to index URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
     return HttpResponseRedirect(reverse('mazu:login'))
@@ -215,24 +224,15 @@ def api_mazu(request):
         received_id = request.POST.get('id')
         received_prompt = request.POST.get('prompt')
         received_answer = request.POST.get('answer')
+        received_key = request.POST.get('session_key')
 
-        # Update db with answer from Mazu
+        # Update message table in db with answer from Mazu
         try:
             Message.objects.filter(id=received_id).update(answer=received_answer)
             
-            # Update session variables
-            request.session["prompt"] = received_prompt
-            request.session["answer"] = received_answer
-
-            # form = MessageForm
-            # return render(request, 'mazu/index.html', {
-            #     "form": form,
-            # })
-
-            # Respond to API request
             return JsonResponse({
-                "message": "successfully updated db",
-            }, status=201)
+                "message": "Successfully updated db",
+            }, status=200)
 
         except IntegrityError as e:
             return JsonResponse({
@@ -307,26 +307,38 @@ def api_mazu(request):
 
 # Receiving API calls from index js script while waiting for answer.
 def api_answer(request):
-    # Acquire latest message for the particular user session
-    try:
-        message = Message.objects.filter(session_key=request.session.session_key).last()
-        if message:
-            return JsonResponse({
-                "answer": message.answer,
-            }, status=200)
-        else:
-            return JsonResponse({
-                "answer": '',
-            }, status=200)
-    except AttributeError:
-        # Reset session values
-        request.session["prompt"] = ''
-        request.session["answer"] = ''
+    if request.method == "POST":
+        # Acquire latest message for a particular session
+        try:
+            message = Message.objects.filter(session_key=request.session.session_key).last()
+            if message:
+                request.session["answer"] = message.answer
 
-        # Return error code
-        return JsonResponse({
-            "error": "No answer found in db",
-        }, status=500)
+                return JsonResponse({
+                    "answer": message.answer,
+                }, status=200)
+            else:
+                # return empty answer
+                return JsonResponse({
+                    "answer": '',
+                }, status=200)
+        except AttributeError:
+            # Reset session values
+            request.session["prompt"] = ''
+            request.session["answer"] = ''
+
+            # Return error code
+            return JsonResponse({
+                "error": "No answer found in db",
+            }, status=500)
+
+
+def api_prompt(request):
+    print("api_prompt called")
+    print(f"returning: {request.session.get('prompt')}")
+    return JsonResponse({
+        "prompt": request.session.get("prompt"),
+    }, status=200)
 
 
 # Called by index js scipt when Mazu has not answered for a long time

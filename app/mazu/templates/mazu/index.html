@@ -27,9 +27,9 @@
 
 {% block content %}
 
-    {% if request.session.prompt == '' and request.session.answer == '' %}
+    {% if prompt == '' and answer == '' %}
 
-        <div class="flex-container">
+        <div class="flex-container" id="index-form-empty">
             <form action="{% url 'mazu:message' %}" method="post">
                 {% csrf_token %}
                 {{ form }}
@@ -37,20 +37,20 @@
             </form>
         </div>
 
-    {% elif request.session.prompt != '' and request.session.answer == '' %}
+    {% elif prompt != '' and answer == '' %}
 
-        <div class="flex-container">
+        <div class="flex-container" id="index-thinking">
             <h3>
-                Mazu funderar på ditt meddelande "{{ request.session.prompt }}"...
+                Mazu funderar på ditt meddelande "{{ prompt }}"...
             </h3>
         </div>
-        <div class="flex-container">
+        <div class="flex-container" id="index-loader">
             <div class="loader"></div>
         </div>
 
     {% else %}
 
-        <div class="flex-container">
+        <div class="flex-container" id="index-form-answer">
             <form action="{% url 'mazu:message' %}" method="post">
                 {% csrf_token %}
                 {{ form }}
@@ -58,14 +58,21 @@
             </form>
         </div>
 
-        <div class="flex-container">
-            <h3>Mazu svarade:</h3>
-        </div>
-        <div class="flex-container">
-            <h3>"{{ request.session.prompt }} {{ request.session.answer }}"</h3>
+        <div id="index-answer">
+            <div class="flex-container">
+                <h3>Mazu svarade:</h3>
+            </div>
+            <div class="flex-container">
+                <h3>"{{ prompt }} {{ answer }}"</h3>
+            </div>
         </div>
 
     {% endif %}
+
+
+
+
+
 
 
     <!-- {% if not user.is_authenticated %}
