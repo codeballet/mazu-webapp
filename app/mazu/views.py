@@ -257,9 +257,8 @@ def api_mazu(request):
         last = Last.objects.all().last()
         if last is None:
             # db is empty, set 0 as reference value in Last
-            value = Last(last_object=0)
+            value = Last(last_prompt=0)
             value.save()
-            # print(f"api_mazu initiated last_object: {l}")
 
     except Error as e:
         return JsonResponse({
@@ -269,7 +268,7 @@ def api_mazu(request):
     # Acquire all the new entries from db since last check
     try:
         # First check the entry id for the last acquired prompt
-        last = Last.objects.order_by('-id')[:1].values()[0]["last_object"]
+        last = Last.objects.order_by('-id')[:1].values()[0]["last_prompt"]
         # print(f"last:\n{last}")
     except Error as e:
         return JsonResponse({
@@ -295,11 +294,11 @@ def api_mazu(request):
             "error": e,
         }, status=500)
 
-    # Udate "last_object" in the Last db table, if there is one
+    # Udate "last_prompt" in the Last db table, if there is one
     try:
         if len(data) > 0:
             new_last = data.values()[len(data) - 1]["id"]
-            nl = Last(last_object=new_last)
+            nl = Last(last_prompt=new_last)
             nl.save()
     except Error as e:
         return JsonResponse({

@@ -1,15 +1,15 @@
 services:
 
-  # web:
-  #   build: ./app
-  #   command: python manage.py runserver 0.0.0.0:8000
-  #   # command: python -m gunicorn mazuproject.asgi:application -k uvicorn.workers.UvicornWorker --reload --bind 0.0.0.0:8000
-  #   volumes:
-  #     - ./app/:/usr/src/app/
-  #   ports:
-  #     - 8000:8000
-  #   env_file:
-  #     - ./.env.dev
+  web:
+    build: ./app
+    command: python manage.py runserver 0.0.0.0:8000
+    # command: python -m gunicorn mazuproject.asgi:application -k uvicorn.workers.UvicornWorker --reload --bind 0.0.0.0:8000
+    volumes:
+      - ./app/:/usr/src/app/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://web:8000"]
     #   interval: 5s
@@ -30,19 +30,19 @@ services:
   #     - ./vocoder/:/app/
   #     - soundfiles:/soundfiles/
 
-  # speech:
-  #   build: ./speech
-  #   command: python speech.py
-  #   depends_on:
-  #     mazutalk:
-  #       condition: service_started
-  #   environment:
-  #     - POSTGRES_NAME=postgres
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #     - ./speech/:/app/
-  #     - soundfiles:/soundfiles/
+  speech:
+    build: ./speech
+    command: python speech.py
+    depends_on:
+      mazutalk:
+        condition: service_started
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./speech/:/app/
+      - soundfiles:/soundfiles/
 
   # notebooks:
   #   build: ./jupyter
@@ -69,9 +69,9 @@ services:
     depends_on:
       db:
         condition: service_started
-      # web:
-      #   # condition: service_healthy
-      #   condition: service_started
+      web:
+        condition: service_started
+        # condition: service_healthy
     command: python mazutalk.py
     env_file:
       - ./.env
@@ -97,4 +97,4 @@ services:
 
 volumes:
   db:
-#   soundfiles:
+  soundfiles:

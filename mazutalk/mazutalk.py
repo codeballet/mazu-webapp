@@ -19,6 +19,9 @@ from tensorflow.keras import layers, models, losses, callbacks
 # Constants #
 #############
 
+URL = "http://web:8000/api_mazu/"
+# URL = "https://spaceengineering.io/api_mazu/"
+
 VOCAB_SIZE = 100000
 MAX_LEN = 80
 EMBEDDING_DIM = 512
@@ -347,9 +350,6 @@ def main():
         # Sleep timer
         N = 5
 
-        # Define request variables
-        # url = "http://web:8000/api_mazu/"
-        url = "https://spaceengineering.io/api_mazu/"
         headers = {
             "Authorization": "Bearer %s" % os.environ.get("BEARER")
         }
@@ -358,7 +358,7 @@ def main():
             print("Inside mazutalk loop")
             try:
                 # Get prompts from the web app
-                response = requests.get(url, headers=headers)
+                response = requests.get(URL, headers=headers)
                 print(f"GET response code: {response.status_code}")
 
                 data = response.json()
@@ -406,7 +406,7 @@ def main():
                                 "prompt": prompt,
                                 "answer": answer_raw,
                             }
-                            response = requests.post(url, headers=headers, data=payload)
+                            response = requests.post(URL, headers=headers, data=payload)
                             print(f"POST response: {response}")
                         except requests.exceptions.HTTPError as errh:
                             print ("Http Error:",errh)

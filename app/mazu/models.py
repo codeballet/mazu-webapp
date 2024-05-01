@@ -24,7 +24,7 @@ class Message(models.Model):
 
 
 class Last(models.Model):
-    last_object = models.BigIntegerField(default=0)
+    last_prompt = models.IntegerField(default=0)
 
     def __str__(self):
-        return (f"id: {self.id}, last_object: {self.last_object}")
+        return (f"id: {self.id}, last_prompt: {self.last_prompt}")

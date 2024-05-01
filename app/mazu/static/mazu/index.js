@@ -1,3 +1,7 @@
+// Variables
+URL = 'http://localhost:8000/api_answer/';
+// URL = 'https://spaceengineering.io/api_answer/';
+
 document.addEventListener('DOMContentLoaded', function() {
 
     // Get csrf token
@@ -45,11 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check for an answer
             function check_answer() {
 
-                // counter = 0;
-
-                // url = 'http://localhost:8000/api_answer/';
-                url = 'https://spaceengineering.io/api_answer/';
-                fetch(url, {
+                fetch(URL, {
                     method: 'post',
                     headers: {'X-CSRFToken': csrftoken},
                 })

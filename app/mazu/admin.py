@@ -10,7 +10,7 @@ class MessageAdmin(admin.ModelAdmin):
 
 
 class LastAdmin(admin.ModelAdmin):
-    list_display = ("id", "last_object")
+    list_display = ("id", "last_prompt")
 
 
 admin.site.register(Message, MessageAdmin)
