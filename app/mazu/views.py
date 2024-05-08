@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from django.http import Http404
 from django.urls import reverse
 from django.http.response import JsonResponse
 from django.core import serializers
@@ -243,6 +242,39 @@ def weather(request):
 # API #
 #######
 
+# Respond with vote statistics to mazusea
+@csrf_exempt
+def api_sea(request):
+    print("api_sea GET request received")
+    # Check if request authorization bearer token is valid
+    authorization = request.headers.get("Authorization")
+    bearer = authorization.split(' ')[1]
+    if bearer != os.environ.get("BEARER"):
+        return JsonResponse({
+            "error": "Request not authorized",
+        }, status=401)
+
+    # Aquire the Vote data
+    vote = Vote.objects.order_by("pk").last()
+    pk = vote.pk
+    zeros = vote.zero
+    ones = vote.one
+
+    # Calculate the voting result
+    if (zeros + ones) == 0:
+        # no votes cast
+        result = 0.5
+    else:
+        result = ones / (zeros + ones)
+
+    # Reset the Vote db entry
+    Vote.objects.filter(pk=pk).update(zero=0, one=0)
+
+    return JsonResponse({
+        "vote": result,
+    }, status=200) 
+
+
 # Respond with new user prompts to mazutalk
 @csrf_exempt
 def api_mazu(request):
@@ -250,9 +282,10 @@ def api_mazu(request):
     authorization = request.headers.get("Authorization")
     bearer = authorization.split(' ')[1]
     if bearer != os.environ.get("BEARER"):
-        raise Http404("Error: request not authorized")
+        return JsonResponse({
+            "error": "Request not authorized",
+        }, status=401)
 
-    # Deal with POST requests
     if request.method == "POST":
         print("api_mazu POST request received")
         # Update database with answers from Mazu
@@ -272,12 +305,12 @@ def api_mazu(request):
                 "error": e,
             }, status=500)
 
-    # Deal with GET requests:
+    # GET requests:
     # Only return new prompts that have not been sent before
-    # Check if db has a record of the last prompt sent
     print("api_mazu GET request received")
     try:
         last = Last.objects.all().last()
+        # Check if db has a record of the last prompt sent
         if last is None:
             # db is empty, set 0 as reference value in Last
             value = Last(last_prompt=0)
