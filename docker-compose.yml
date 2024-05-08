@@ -17,32 +17,32 @@ services:
     #   retries: 5
     #   start_period: 10s
 
-  vocoder:
-    build: ./vocoder
-    command: python vocoder.py
-    depends_on:
-      - speech
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - ./vocoder/:/app/
-      - soundfiles:/soundfiles/
+  # vocoder:
+  #   build: ./vocoder
+  #   command: python vocoder.py
+  #   depends_on:
+  #     - speech
+  #   environment:
+  #     - POSTGRES_NAME=postgres
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #     - ./vocoder/:/app/
+  #     - soundfiles:/soundfiles/
 
-  speech:
-    build: ./speech
-    command: python speech.py
-    depends_on:
-      mazutalk:
-        condition: service_started
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - ./speech/:/app/
-      - soundfiles:/soundfiles/
+  # speech:
+  #   build: ./speech
+  #   command: python speech.py
+  #   depends_on:
+  #     mazutalk:
+  #       condition: service_started
+  #   environment:
+  #     - POSTGRES_NAME=postgres
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #     - ./speech/:/app/
+  #     - soundfiles:/soundfiles/
 
   # notebooks:
   #   build: ./jupyter
@@ -97,4 +97,4 @@ services:
 
 volumes:
   db:
-  soundfiles:
+  # soundfiles:

@@ -28,12 +28,12 @@ from generator import TextGenerator
 
 
 # Global constants
-URL = "http://web:8000/api_mazu/"
-# URL = "https://spaceengineering.io/api_mazu/"
+# URL = "http://web:8000/api_mazu/"
+URL = "https://spaceengineering.io/api_mazu/"
 
 LOAD_MODEL = True
-TRAIN = True
-LOOP = False
+TRAIN = False
+LOOP = True
 
 VOCAB_SIZE = 100000
 MAX_LEN = 80
