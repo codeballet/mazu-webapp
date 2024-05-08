@@ -4,6 +4,11 @@ import requests
 import os
 import json
 
+
+#######################################
+# Test program to connect to mazu api #
+#######################################
+
 # Wait for web app to start
 time.sleep(5)
 
