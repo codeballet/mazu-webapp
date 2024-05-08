@@ -27,17 +27,15 @@
 
 {% block content %}
 
-    {% if not request.session.mazu_active %}
+    <div class="flex-container weather">
+        <form action="{% url 'mazu:weather' %}" method="post">
+            {% csrf_token %}
+            <input class="button" id="button-zero" type="submit" name="zero" value="Lågvatten">
+            <input class="button" id="button-one" type="submit" name="one" value="Högvatten">
+        </form>
+    </div>
 
-        <div class="flex-container" id="index-form-inactive">
-            <form action="{% url 'mazu:message' %}" method="post">
-                {% csrf_token %}
-                {{ form }}
-                <input class="button" id="button-send" type="submit" value="Sänd">
-            </form>
-        </div>
-
-    {% elif prompt == '' and answer == '' %}
+    {% if prompt == '' and answer == '' %}
 
         <div class="flex-container" id="index-form-empty">
             <form action="{% url 'mazu:message' %}" method="post">
@@ -78,65 +76,6 @@
         </div>
 
     {% endif %}
-
-
-
-
-
-
-
-    <!-- {% if not user.is_authenticated %}
-        <div class="flex-container">
-            <p>För att kunna skapa med Mazu måste du först logga in eller registrera dig</p>
-        </div>
-    {% endif %} -->
-
-    <!-- <div class="flex-container weather">
-        <form action="{% url 'mazu:weather' %}" method="post">
-            {% csrf_token %}
-            <input class="button" id="button-calm" type="submit" name="zero" value="Stilla">
-            <input class="button" id="button-wind" type="submit" name="one" value="Blåsigt">
-        </form>
-    </div> -->
-
-    <!-- {% if prompts %}
-    <div class="flex-container">
-        <h3>Mazu hörde dig säga:</h3>
-    </div>
-
-    <div class="flex-container">
-        <div class="list">
-            {% for prompt in prompts reversed %}
-                <li class="prompt">"{{ prompt }}"</li>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %} -->
-
-    <!-- TODO: restore authentication requirements -->
-    <!-- {% if user.is_authenticated %}
-
-        {% if prompts %}
-            <div class="flex-container">
-                <h3>Mazu hörde dig säga:</h3>
-            </div>
-
-            <div class="flex-container">
-                <div class="list">
-                    {% for prompt in prompts reversed %}
-                        <li class="prompt">"{{ prompt }}"</li>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-
-        {% if not prompts %}
-        <div class="flex-container">
-            <h3>Du har inte sagt något än...</h3>
-        </div>
-        {% endif %}
-
-    {% endif %} -->
 
 {% endblock content %}
 

@@ -62,21 +62,23 @@ p {
     transform: translateY(4px);
 }
 
-#button-calm {
-    padding: 1.2rem 2rem;
+#button-zero, #button-one {
+    padding: 1.2rem 1.3rem;
+}
+
+#button-zero {
     background-color: lightsteelblue;
 }
   
-#button-calm:hover {
+#button-zero:hover {
     background-color: lightskyblue;
 }
 
-#button-wind {
-    padding: 1.2rem 1.7rem;
+#button-one {
     background-color: palevioletred;
 }
   
-#button-wind:hover {
+#button-one:hover {
     background-color: mediumvioletred;
 }
   
@@ -245,6 +247,7 @@ nav {
     float: right;
     font-size: 2em;
     font-weight: bold;
+    padding: 0.4rem 0.7rem 0.3rem 0.7rem;
 }
   
 .close:hover,

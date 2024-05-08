@@ -15,7 +15,7 @@ import json
 import re
 import os
 
-from .models import Message, Last, User
+from .models import Message, Last, User, Vote
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
@@ -156,7 +156,7 @@ def message(request):
             # Redirect to new URL
             return HttpResponseRedirect(reverse('mazu:index'))
 
-    return HttpResponseRedirect(reverse('mazu:login'))
+    return HttpResponseRedirect(reverse('mazu:index'))
 
 
 def register(request):
@@ -206,21 +206,44 @@ def register(request):
 
 
 def weather(request):
-    if request.method == 'POST' and request.user.is_authenticated:
+    # if request.method == 'POST' and request.user.is_authenticated:
+    if request.method == 'POST':
+        print(f"\nweather view received POST request: {request.POST}")
+
+        if Vote.objects.order_by("pk").last() == None:
+            # No votes yet in db, initialise db with zeros
+            print("No votes found in db")
+            vote = Vote(zero=0, one=0)
+            vote.save()
+
         if request.POST.get('zero'):
             print(f"\nweather view received: {request.POST['zero']}\n")
-        elif request.POST.get('one'):
+            # Update the latest vote 'zero' entry in the db with zero + 1
+            vote = Vote.objects.order_by("pk").last()
+            zero = vote.zero + 1
+            pk = vote.pk
+            print(f"zero: {zero}, pk: {pk}")
+            Vote.objects.filter(pk=pk).update(zero=zero)
+        if request.POST.get('one'):
+            # Update the latest vote 'one' entry in the db with one + 1
             print(f"\nweather view received: {request.POST['one']}\n")
+            vote = Vote.objects.order_by("pk").last()
+            one = vote.one + 1
+            pk = vote.pk
+            print(f"one: {one}, pk: {pk}")
+            Vote.objects.filter(pk=pk).update(one=one)
+        
         # Redirect to index URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
-    return HttpResponseRedirect(reverse('mazu:login'))
+    return HttpResponseRedirect(reverse('mazu:index'))
 
 
 #######
 # API #
 #######
 
+# Respond with new user prompts to mazutalk
 @csrf_exempt
 def api_mazu(request):
     # Check if request authorization bearer token is valid

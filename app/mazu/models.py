@@ -28,3 +28,10 @@ class Last(models.Model):
 
     def __str__(self):
         return (f"id: {self.id}, last_prompt: {self.last_prompt}")
+
+class Vote(models.Model):
+    zero = models.IntegerField(default=0)
+    one = models.IntegerField(default=0)
+
+    def __str__(self):
+        return(f"id: {self.id}, zero: {self.zero}, one: {self.one}")
