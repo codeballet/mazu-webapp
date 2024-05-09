@@ -263,7 +263,7 @@ def api_sea(request):
     # Calculate the voting result
     if (zeros + ones) == 0:
         # no votes cast
-        result = 0.5
+        result = -1
     else:
         result = ones / (zeros + ones)
 
