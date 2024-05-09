@@ -17,6 +17,16 @@ from tensorflow.keras import (
     activations,
 )
 
+####################
+# Define variables #
+####################
+
+URL = "http://web:8000/api_sea/"
+# URL = "https://spaceengineering.io/api_sea/"
+
+# Loop interval
+N = 20
+
 
 ##############
 # Parameters #
@@ -339,9 +349,6 @@ n = np.stack((n1, n2), axis=0)
 # Loop connect to webserver #
 #############################
 
-# Loop interval
-N = 20
-
 # Detect first run value
 previous_t = 2
 
@@ -350,19 +357,15 @@ while True:
     # Wait for web app to start
     time.sleep(N)
 
-
-    # Define request variables
-    url = "http://web:8000/api_sea/"
-    # url = "https://spaceengineering.io/api_sea/"
+    # Define request headers
     headers = {
         "Authorization": "Bearer %s" % os.environ.get("BEARER")
     }
 
-
     # Check for voting results
     try:
         # Send request
-        response = requests.get(url, headers=headers)
+        response = requests.get(URL, headers=headers)
         print(f"GET response code: {response.status_code}")
 
         # Acquire response

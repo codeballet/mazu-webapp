@@ -18,7 +18,7 @@ from .models import Message, Last, User, Vote
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
-MAZU_ACTIVE = True
+MAZU_ACTIVE = os.environ.get("MAZU_ACTIVE")
 
 
 #########
@@ -209,7 +209,14 @@ def weather(request):
     if request.method == 'POST':
         print(f"\nweather view received POST request: {request.POST}")
 
-        if Vote.objects.order_by("pk").last() == None:
+        # Only move ahead if Mazu is active
+        if not request.session.get("mazu_active"):
+            messages.info(request, "Mazu är inte tillgänglig just nu.")
+            messages.info(request, 'Kontakta Johan Stjernholm för nästa utställning med Mazu.')
+
+            return HttpResponseRedirect(reverse('mazu:index'))
+
+        if Vote.objects.order_by("pk").last() is None:
             # No votes yet in db, initialise db with zeros
             print("No votes found in db")
             vote = Vote(zero=0, one=0)
@@ -231,7 +238,7 @@ def weather(request):
             pk = vote.pk
             print(f"one: {one}, pk: {pk}")
             Vote.objects.filter(pk=pk).update(one=one)
-        
+
         # Redirect to index URL
         return HttpResponseRedirect(reverse('mazu:index'))
 
@@ -272,7 +279,7 @@ def api_sea(request):
 
     return JsonResponse({
         "vote": result,
-    }, status=200) 
+    }, status=200)
 
 
 # Respond with new user prompts to mazutalk

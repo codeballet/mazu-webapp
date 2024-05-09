@@ -12,6 +12,7 @@ class MessageAdmin(admin.ModelAdmin):
 class LastAdmin(admin.ModelAdmin):
     list_display = ("id", "last_prompt")
 
+
 class VoteAdmin(admin.ModelAdmin):
     list_display = ("id", "zero", "one")
 

@@ -27,13 +27,16 @@ from embedding import TokenAndPositionEmbedding
 from generator import TextGenerator
 
 
-# Global constants
+# Server requests
 # URL = "http://web:8000/api_mazu/"
 URL = "https://spaceengineering.io/api_mazu/"
+LOOP = True
+N = 5
 
+# Training variables
 LOAD_MODEL = True
 TRAIN = False
-LOOP = True
+EPOCHS = 1
 
 VOCAB_SIZE = 100000
 MAX_LEN = 80
@@ -44,7 +47,6 @@ FEED_FORWARD_DIM = 512
 VALIDATION_SPLIT = 0.2
 SEED = 42
 BATCH_SIZE = 32
-EPOCHS = 1
 DATASET_REPETITIONS = 1
 
 
@@ -138,9 +140,6 @@ def main():
 
         print("Mazutalk about to start requests...")
         time.sleep(5)
-
-        # Keep looking for new input from the webserver every Nth second
-        N = 5
 
         headers = {
             "Authorization": "Bearer %s" % os.environ.get("BEARER")

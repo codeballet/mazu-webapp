@@ -22,6 +22,9 @@ BEARER=a_bearer_token
 DJANGO_SUPERUSER_PASSWORD=password
 DJANGO_SUPERUSER_EMAIL=example@mail.com
 DJANGO_SUPERUSER_USERNAME=username
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+MAZU_ACTIVE=<False or True>
 ```
 Those variables are secret. Do not include them in a public git repository or similar.
 
@@ -91,7 +94,27 @@ git pull
 ### Preparing the `nginx.conf` file
 Make sure that the file is in a state suitable to whether you are recreating all the volumes, in which case the encryption certificates will be lost, and you have to acquire new with certbot. Or, if you simply are doing an update and leaving the volumes intact. See the comments in side the `nginx.conf` file for advice on which parts are necessary to activate / deactivate.
 
-## Order of actions for a simple update
+## Checklist for environment files before deployment
+### Web app `.env` and `.env.prod` files
+* `MAZU_ACTIVE` set to `True` or `False`, depending on whether AIs are active or not.
+
+### `mazutalk.py` file
+Adjust the variables for:
+* `URL` set to local dev server or online production server.
+* `LOOP`, `True` or `False`. Decides whether or not to run loop for connecting to web server.
+* `N`, loop interval in seconds.
+* `LOAD_MODEL`, `True` or `False`. Decides whether or not to load the model weights.
+* `TRAIN`, `True` or `False`. Decides whether or not to train the model.
+* `EPOCHS`, depending on how much training is desired.
+
+### `mazusea.py` file
+* `URL` set to local dev server or online production server.
+* `N`, loop interval in seconds.
+
+### `nginx.conf` file
+Adjust which locations are used, depending on whether or not certificates are acquired.
+
+### Order of actions for an online web server update
 1. Stop the containers running.
 2. Pull the latest update from github.
 3. Start the app with docker compose up, specifying the production `docker-compose.prod.yml` file.
