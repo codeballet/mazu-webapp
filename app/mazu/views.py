@@ -313,9 +313,7 @@ def api_sea(request):
         "vote": result,
     }, status=200)
 
-
-    # GET requests:
-    # Only return new prompts that have not been sent before
+    # GET request, only return new prompts
     print("api_mazu GET request received")
     try:
         last = Last.objects.all().last()
