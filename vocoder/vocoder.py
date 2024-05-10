@@ -16,6 +16,7 @@ N = 1
 MP3_DIR = "/soundfiles/"
 WAV_DIR = "/soundfiles/"
 SYN_DIR = "./syn_files/"
+TEST_DIR = "./test_files/"
 
 # Vocoder settings
 PITCH = 1.4
@@ -104,6 +105,9 @@ while True:
         # Check if the file is already converted
         # If not, convert and save as wav file
         if mp3_number not in wav_list:
+            # TODO: make sure that the entire file is processed. Try with pydub.
+            test_file = f"{TEST_DIR}{mp3_number}.wav"
+            subprocess.call(['ffmpeg', '-i', mp3_file, test_file])
             new_file = f"{WAV_DIR}{mp3_number}.wav"
             subprocess.call(['ffmpeg', '-i', mp3_file, new_file])
             print(f"\nConverted '{mp3_file}'\n")
