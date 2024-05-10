@@ -324,7 +324,7 @@ def api_mazu(request):
         return JsonResponse({
             "error": "Request not authorized",
         }, status=401)
-    
+
     print("api_mazu authorization cleared!")
 
     # POST request
