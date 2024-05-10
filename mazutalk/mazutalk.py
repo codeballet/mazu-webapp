@@ -28,10 +28,10 @@ from generator import TextGenerator
 
 
 # Server requests
-# URL = "http://web:8000/api_mazu/"
-URL = "https://spaceengineering.io/api_mazu/"
+URL = "http://web:8000/api_mazu/"
+# URL = "https://spaceengineering.io/api_mazu/"
 LOOP = True
-N = 5
+N = 20
 
 # Training variables
 LOAD_MODEL = True

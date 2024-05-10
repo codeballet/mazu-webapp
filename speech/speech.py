@@ -23,7 +23,7 @@ print("Saved value to 'last' table")
 ################
 
 # Set sleep timer N
-N = 5
+N = 10
 while True:
     # Reset tracker and answer variables
     tracker = 0
@@ -60,14 +60,14 @@ while True:
                 conn.commit()
 
             # Truncate answer to be shorter
-            answer_list = answer.split()
-            sliced_list = answer_list[:40]
-            short_answer = ' '.join(sliced_list)
+            # answer_list = answer.split()
+            # sliced_list = answer_list[:40]
+            # short_answer = ' '.join(sliced_list)
             
             # Generate sound files from texts
             try:
                 print(f"Generating Text To sound file from number {message_id}")
-                tts = gTTS(short_answer, lang='sv', slow=True)
+                tts = gTTS(answer, lang='sv', slow=True)
             except:
                 print("Error: could not generate Text To sound file")
 

@@ -313,68 +313,6 @@ def api_sea(request):
         "vote": result,
     }, status=200)
 
-    # GET request, only return new prompts
-    print("api_mazu GET request received")
-    try:
-        last = Last.objects.all().last()
-        # Check if db has a record of the last prompt sent
-        if last is None:
-            # db is empty, set 0 as reference value in Last
-            value = Last(last_prompt=0)
-            value.save()
-
-    except Error as e:
-        return JsonResponse({
-            "error": e,
-        }, status=500)
-
-    # Acquire all the new entries from db since last check
-    try:
-        # First check the entry id for the last acquired prompt
-        last = Last.objects.order_by('-id')[:1].values()[0]["last_prompt"]
-        # print(f"last:\n{last}")
-    except Error as e:
-        return JsonResponse({
-            "error": e,
-        }, status=500)
-
-    # Acquire all entries created after the previously last prompt
-    try:
-        # First check if there are any new prompts
-        if Message.objects.filter(id__gt=last).exists():
-            # Then get the entries
-            data = Message.objects.filter(id__gt=last).order_by("id")
-            print(f"api_mazu acquired new data: \n{data}")
-        else:
-            # Return an empty list if there are no new entries
-            print("api_mazu has no new data to acquire, returning empty list of messages")
-            return JsonResponse({
-                "messages": [],
-            }, status=200)
-
-    except Error as e:
-        return JsonResponse({
-            "error": e,
-        }, status=500)
-
-    # Udate "last_prompt" in the Last db table, if there is one
-    try:
-        if len(data) > 0:
-            new_last = data.values()[len(data) - 1]["id"]
-            nl = Last(last_prompt=new_last)
-            nl.save()
-    except Error as e:
-        return JsonResponse({
-            "error": e,
-        }, status=500)
-
-    # Send json response with the new entries
-    serialized_data = serializers.serialize("json", data)
-    data_list = json.loads(serialized_data)
-    return JsonResponse({
-        "messages": data_list,
-    }, status=200)
-
 
 # Respond with new user prompts to mazutalk
 @csrf_exempt
@@ -386,7 +324,10 @@ def api_mazu(request):
         return JsonResponse({
             "error": "Request not authorized",
         }, status=401)
+    
+    print("api_mazu authorization cleared!")
 
+    # POST request
     if request.method == "POST":
         print("api_mazu POST request received")
         # Update database with answers from Mazu
@@ -405,3 +346,43 @@ def api_mazu(request):
             return JsonResponse({
                 "error": e,
             }, status=500)
+
+    # GET request, only return new prompts
+    print("api_mazu GET request received")
+
+    last = Last.objects.all().last()
+    # Check if db has a record of the last prompt sent
+    if last is None:
+        # db is empty, set 0 as reference value in Last
+        value = Last(last_prompt=0)
+        value.save()
+
+    # Acquire all the new entries from db since last check
+    last = Last.objects.order_by('-id')[:1].values()[0]["last_prompt"]
+    print(f"last prompt: {last}")
+
+    # First check if there are any new prompts
+    if Message.objects.filter(id__gt=last).exists():
+        # Then get the entries
+        data = Message.objects.filter(id__gt=last).order_by("id")
+        print(f"api_mazu acquired new data: \n{data}")
+    else:
+        # Return an empty list if there are no new entries
+        print("api_mazu has no new data to acquire, returning empty list of messages")
+        data = []
+        return JsonResponse({
+            "messages": data,
+        }, status=200)
+
+    # Udate "last_prompt" in the Last db table, if there is one
+    if len(data) > 0:
+        new_last = data.values()[len(data) - 1]["id"]
+        nl = Last(last_prompt=new_last)
+        nl.save()
+
+    # Send json response with the new entries
+    serialized_data = serializers.serialize("json", data)
+    data_list = json.loads(serialized_data)
+    return JsonResponse({
+        "messages": data_list,
+    }, status=200)

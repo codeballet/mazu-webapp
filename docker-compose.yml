@@ -17,32 +17,32 @@ services:
     #   retries: 5
     #   start_period: 10s
 
-  # vocoder:
-  #   build: ./vocoder
-  #   command: python vocoder.py
-  #   depends_on:
-  #     - speech
-  #   environment:
-  #     - POSTGRES_NAME=postgres
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #     - ./vocoder/:/app/
-  #     - soundfiles:/soundfiles/
+  vocoder:
+    build: ./vocoder
+    command: python vocoder.py
+    depends_on:
+      - speech
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./vocoder/:/app/
+      - soundfiles:/soundfiles/
 
-  # speech:
-  #   build: ./speech
-  #   command: python speech.py
-  #   depends_on:
-  #     mazutalk:
-  #       condition: service_started
-  #   environment:
-  #     - POSTGRES_NAME=postgres
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #     - ./speech/:/app/
-  #     - soundfiles:/soundfiles/
+  speech:
+    build: ./speech
+    command: python speech.py
+    depends_on:
+      mazutalk:
+        condition: service_started
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./speech/:/app/
+      - soundfiles:/soundfiles/
 
   # notebooks:
   #   build: ./jupyter
@@ -66,28 +66,25 @@ services:
 
   mazusea:
     build: ./mazusea
-    depends_on:
-      web:
-        condition: service_started
     command: python mazusea.py
     env_file:
       - ./.env
     volumes:
       - ./mazusea/:/app/
 
-  # mazutalk:
-  #   build: ./mazutalk
-  #   depends_on:
-  #     db:
-  #       condition: service_started
-  #     web:
-  #       condition: service_started
-  #       # condition: service_healthy
-  #   command: python mazutalk.py
-  #   env_file:
-  #     - ./.env
-  #   volumes:
-  #     - ./mazutalk/:/app
+  mazutalk:
+    build: ./mazutalk
+    depends_on:
+      db:
+        condition: service_started
+      # web:
+      #   condition: service_started
+        # condition: service_healthy
+    command: python mazutalk.py
+    env_file:
+      - ./.env
+    volumes:
+      - ./mazutalk/:/app
 
   # connect:
   #   build: ./connect
@@ -95,17 +92,17 @@ services:
   #   env_file:
   #     - ./.env
 
-#   db:
-#     image: postgres:16.2-alpine
-#     volumes:
-#       - db:/var/lib/postgresql/data
-#       - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
-#     environment:
-#       - POSTGRES_DB=postgres
-#       - POSTGRES_USER=postgres
-#       - POSTGRES_PASSWORD=postgres
+  db:
+    image: postgres:16.2-alpine
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
 
-# volumes:
-#   db:
-  # soundfiles:
+volumes:
+  db:
+  soundfiles:

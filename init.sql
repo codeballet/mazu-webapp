@@ -2,7 +2,7 @@ CREATE TABLE message
 (
     message_id INTEGER,
     prompt VARCHAR(255),
-    answer VARCHAR(512)
+    answer VARCHAR(1024)
 );
 
 CREATE TABLE last

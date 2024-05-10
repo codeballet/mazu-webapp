@@ -9,6 +9,8 @@ import soundfile as sf
 import numpy as np
 import time
 
+# Sleep timer
+N = 1
 
 # File paths
 MP3_DIR = "/soundfiles/"
@@ -17,7 +19,7 @@ SYN_DIR = "./syn_files/"
 
 # Vocoder settings
 PITCH = 1.4
-DURATION = 1.4
+DURATION = 1.3
 
 # initialize vocoder
 vocoder = wv.World()
@@ -35,12 +37,6 @@ def extract_number(file):
     else:
         number = int(base_filename.split(".")[0])
     return number
-    
-# Convert file to wav function
-def convert(file, number):
-    new_file = f"{WAV_DIR}{number}.wav"
-    subprocess.call(['ffmpeg', '-i', file, new_file])
-    print(f"\nConverted '{file}'\n")
 
 
 # Synthesize file function
@@ -108,7 +104,9 @@ while True:
         # Check if the file is already converted
         # If not, convert and save as wav file
         if mp3_number not in wav_list:
-            convert(mp3_file, mp3_number)
+            new_file = f"{WAV_DIR}{mp3_number}.wav"
+            subprocess.call(['ffmpeg', '-i', mp3_file, new_file])
+            print(f"\nConverted '{mp3_file}'\n")
 
     # Check for existing synthesized files
     syn_list = []
@@ -126,4 +124,4 @@ while True:
         if wav_number not in syn_list:
             synthesize(wav_file, wav_number)
 
-    time.sleep(5)
+    time.sleep(N)
