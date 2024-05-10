@@ -24,7 +24,6 @@ DJANGO_SUPERUSER_EMAIL=example@mail.com
 DJANGO_SUPERUSER_USERNAME=username
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
-MAZU_ACTIVE=<False or True>
 ```
 Those variables are secret. Do not include them in a public git repository or similar.
 
@@ -98,7 +97,7 @@ Make sure that the file is in a state suitable to whether you are recreating all
 ### `nginx.conf` file
 Adjust which locations are used, depending on whether or not certificates are acquired.
 
-### Web app `.env` and `.env.prod` files
+### Web app `views.py` file
 * `MAZU_ACTIVE` set to `True` or `False`, depending on whether AIs are active or not.
 
 ### `mazutalk.py` file

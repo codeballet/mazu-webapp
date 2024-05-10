@@ -18,13 +18,13 @@ from .models import Message, Last, User, Vote
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
-MAZU_ACTIVE = os.environ.get("MAZU_ACTIVE")
+# Set whether or not mazu AIs are active
+MAZU_ACTIVE = False
 
 
 #########
 # Views #
 #########
-
 
 def index(request):
     form = MessageForm()
