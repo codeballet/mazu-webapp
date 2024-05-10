@@ -18,8 +18,12 @@ from .models import Message, Last, User, Vote
 from .forms import LoginForm, MessageForm, RegisterForm
 
 
+####################
+# Global Variables #
+####################
+
 # Set whether or not mazu AIs are active
-MAZU_ACTIVE = False
+MAZU_ACTIVE = True
 
 
 #########
@@ -245,9 +249,37 @@ def weather(request):
     return HttpResponseRedirect(reverse('mazu:index'))
 
 
-#######
-# API #
-#######
+######################
+# External calls API #
+######################
+
+# Receiving API calls from index js script while waiting for answer.
+def api_answer(request):
+    if request.method == "POST":
+        # Acquire latest message for a particular session
+        try:
+            message = Message.objects.filter(session_key=request.session.session_key).last()
+            if message:
+                request.session["answer"] = message.answer
+
+                return JsonResponse({
+                    "answer": message.answer,
+                }, status=200)
+            else:
+                # return empty answer
+                return JsonResponse({
+                    "answer": '',
+                }, status=200)
+        except AttributeError:
+            # Reset session values
+            request.session["prompt"] = ''
+            request.session["answer"] = ''
+
+            # Return error code
+            return JsonResponse({
+                "error": "No answer found in db",
+            }, status=500)
+
 
 # Respond with vote statistics to mazusea
 @csrf_exempt
@@ -281,36 +313,6 @@ def api_sea(request):
         "vote": result,
     }, status=200)
 
-
-# Respond with new user prompts to mazutalk
-@csrf_exempt
-def api_mazu(request):
-    # Check if request authorization bearer token is valid
-    authorization = request.headers.get("Authorization")
-    bearer = authorization.split(' ')[1]
-    if bearer != os.environ.get("BEARER"):
-        return JsonResponse({
-            "error": "Request not authorized",
-        }, status=401)
-
-    if request.method == "POST":
-        print("api_mazu POST request received")
-        # Update database with answers from Mazu
-        received_id = request.POST.get('id')
-        received_answer = request.POST.get('answer')
-
-        # Update message table in db with answer from Mazu
-        try:
-            Message.objects.filter(id=received_id).update(answer=received_answer)
-
-            return JsonResponse({
-                "message": "Successfully updated db",
-            }, status=200)
-
-        except IntegrityError as e:
-            return JsonResponse({
-                "error": e,
-            }, status=500)
 
     # GET requests:
     # Only return new prompts that have not been sent before
@@ -376,29 +378,32 @@ def api_mazu(request):
     }, status=200)
 
 
-# Receiving API calls from index js script while waiting for answer.
-def api_answer(request):
+# Respond with new user prompts to mazutalk
+@csrf_exempt
+def api_mazu(request):
+    # Check if request authorization bearer token is valid
+    authorization = request.headers.get("Authorization")
+    bearer = authorization.split(' ')[1]
+    if bearer != os.environ.get("BEARER"):
+        return JsonResponse({
+            "error": "Request not authorized",
+        }, status=401)
+
     if request.method == "POST":
-        # Acquire latest message for a particular session
+        print("api_mazu POST request received")
+        # Update database with answers from Mazu
+        received_id = request.POST.get('id')
+        received_answer = request.POST.get('answer')
+
+        # Update message table in db with answer from Mazu
         try:
-            message = Message.objects.filter(session_key=request.session.session_key).last()
-            if message:
-                request.session["answer"] = message.answer
+            Message.objects.filter(id=received_id).update(answer=received_answer)
 
-                return JsonResponse({
-                    "answer": message.answer,
-                }, status=200)
-            else:
-                # return empty answer
-                return JsonResponse({
-                    "answer": '',
-                }, status=200)
-        except AttributeError:
-            # Reset session values
-            request.session["prompt"] = ''
-            request.session["answer"] = ''
-
-            # Return error code
             return JsonResponse({
-                "error": "No answer found in db",
+                "message": "Successfully updated db",
+            }, status=200)
+
+        except IntegrityError as e:
+            return JsonResponse({
+                "error": e,
             }, status=500)
