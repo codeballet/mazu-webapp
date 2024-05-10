@@ -50,8 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
             function check_answer() {
 
                 fetch(URL, {
-                    method: 'post',
-                    headers: {'X-CSRFToken': csrftoken},
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrftoken,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({})
                 })
                 .then(response => response.json())
                 .then(data => {

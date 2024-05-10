@@ -81,6 +81,7 @@ while True:
     # Collect sorted lists of all soundfiles that already exist
     # Collect and sort mp3 files
     files_mp3 = glob.glob(f"{MP3_DIR}*.mp3")
+            
     files_mp3.sort(key=sorter)  # Sort based on the extracted numeric value
 
     # Collect and sort wav files
@@ -105,7 +106,8 @@ while True:
         # Check if the file is already converted
         # If not, convert and save as wav file
         if mp3_number not in wav_list:
-            # TODO: make sure that the entire file is processed. Try with pydub.
+            # TODO: make sure that the entire file is processed.
+            # Try with pydub.
             # This could also be cause by starting the transcoding before file is fully created
             # N sleep time is increased to 10 seconds. Try and see if problem persists.
             test_file = f"{TEST_DIR}{mp3_number}.wav"
