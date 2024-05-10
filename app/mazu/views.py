@@ -280,6 +280,11 @@ def api_answer(request):
                 "error": "No answer found in db",
             }, status=500)
 
+    print(f"\napi_answer received GET request: {request}\n")
+    return JsonResponse({
+        "answer": ""
+    }, status=200)
+
 
 # Respond with vote statistics to mazusea
 @csrf_exempt
@@ -295,7 +300,7 @@ def api_sea(request):
 
     # Aquire the Vote data
     vote = Vote.objects.order_by("pk").last()
-    pk = vote.pk
+    id = vote.id
     zeros = vote.zero
     ones = vote.one
 
@@ -307,7 +312,7 @@ def api_sea(request):
         result = ones / (zeros + ones)
 
     # Reset the Vote db entry
-    Vote.objects.filter(pk=pk).update(zero=0, one=0)
+    Vote.objects.filter(pk=id).update(zero=0, one=0)
 
     return JsonResponse({
         "vote": result,

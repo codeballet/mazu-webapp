@@ -100,6 +100,9 @@ Adjust which locations are used, depending on whether or not certificates are ac
 ### Web app `views.py` file
 * `MAZU_ACTIVE` set to `True` or `False`, depending on whether AIs are active or not.
 
+### Web app `index.js` file
+* `URL` set to connect to local or online server.
+
 ### `mazutalk.py` file
 Adjust the variables for:
 * `URL` set to local dev server or online production server.
