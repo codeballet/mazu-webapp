@@ -10,7 +10,7 @@ import numpy as np
 import time
 
 # Sleep timer
-N = 1
+N = 10
 
 # File paths
 MP3_DIR = "/soundfiles/"
@@ -106,6 +106,8 @@ while True:
         # If not, convert and save as wav file
         if mp3_number not in wav_list:
             # TODO: make sure that the entire file is processed. Try with pydub.
+            # This could also be cause by starting the transcoding before file is fully created
+            # N sleep time is increased to 10 seconds. Try and see if problem persists.
             test_file = f"{TEST_DIR}{mp3_number}.wav"
             subprocess.call(['ffmpeg', '-i', mp3_file, test_file])
             new_file = f"{WAV_DIR}{mp3_number}.wav"

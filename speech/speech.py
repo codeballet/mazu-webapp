@@ -23,7 +23,7 @@ print("Saved value to 'last' table")
 ################
 
 # Set sleep timer N
-N = 10
+N = 3
 while True:
     # Reset tracker and answer variables
     tracker = 0
