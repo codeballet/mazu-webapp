@@ -83,13 +83,6 @@ After the successful acquiring of certificates:
 - Run the entire app with docker compose.
 
 ## Updating and restarting the server
-### Pulling new production version from github
-Upon pulling a new verstion of the project to the production server, you may have to reset all uncommited changes.
-The below commands will remove all uncommitted changes, even if staged, and then pull:
-```
-git reset --hard HEAD
-git pull
-```
 ### Preparing the `nginx.conf` file
 Make sure that the file is in a state suitable to whether you are recreating all the volumes, in which case the encryption certificates will be lost, and you have to acquire new with certbot. Or, if you simply are doing an update and leaving the volumes intact. See the comments in side the `nginx.conf` file for advice on which parts are necessary to activate / deactivate.
 
@@ -123,6 +116,14 @@ Adjust the variables for:
 4. Do migrations with `makemigrations` and `migrate`.
 5. Collect static files with `collectstatic`.
 6. Recreate the superuser.
+
+### Pulling new production version from github
+Upon pulling a new verstion of the project to the production server, you may have to reset all uncommited changes.
+The below commands will remove all uncommitted changes, even if staged, and then pull:
+```
+git reset --hard HEAD
+git pull
+```
 
 ## Notes for creation of new apps and projects
 ### Beware of ownership when creating Django projects and apps

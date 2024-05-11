@@ -1,6 +1,6 @@
 // Variables
-// URL = 'http://localhost:8000/api_answer/';
-URL = 'https://spaceengineering.io/api_answer/';
+URL = 'http://localhost:8000/api_answer/';
+// URL = 'https://spaceengineering.io/api_answer/';
 
 document.addEventListener('DOMContentLoaded', function() {
 

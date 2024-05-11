@@ -23,7 +23,7 @@ from .forms import LoginForm, MessageForm, RegisterForm
 ####################
 
 # Set whether or not mazu AIs are active
-MAZU_ACTIVE = False
+MAZU_ACTIVE = True
 
 
 #########
@@ -268,7 +268,7 @@ def api_answer(request):
             else:
                 # return empty answer
                 return JsonResponse({
-                    "answer": '',
+                    "answer": "",
                 }, status=200)
         except AttributeError:
             # Reset session values
@@ -281,7 +281,6 @@ def api_answer(request):
             }, status=500)
 
     print(f"\napi_answer received GET request: {request}\n")
-    # TODO: find out why GET requests are sent to this view
     return JsonResponse({
         "answer": ""
     }, status=200)
