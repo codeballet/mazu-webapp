@@ -300,23 +300,31 @@ def api_sea(request):
 
     # Aquire the Vote data
     vote = Vote.objects.order_by("pk").last()
-    id = vote.id
-    zeros = vote.zero
-    ones = vote.one
 
-    # Calculate the voting result
-    if (zeros + ones) == 0:
-        # no votes cast
-        result = -1
+    if vote is not None:
+        id = vote.id
+        zeros = vote.zero
+        ones = vote.one
+
+        # Calculate the voting result
+        if (zeros + ones) == 0:
+            # no votes cast
+            result = -1
+        else:
+            result = ones / (zeros + ones)
+
+        # Reset the Vote db entry
+        Vote.objects.filter(pk=id).update(zero=0, one=0)
+
+        return JsonResponse({
+            "vote": result,
+        }, status=200)
     else:
-        result = ones / (zeros + ones)
-
-    # Reset the Vote db entry
-    Vote.objects.filter(pk=id).update(zero=0, one=0)
-
-    return JsonResponse({
-        "vote": result,
-    }, status=200)
+        # no votes in db
+        result = -1
+        return JsonResponse({
+            "vote": result
+        }, status=200)
 
 
 # Respond with new user prompts to mazutalk
