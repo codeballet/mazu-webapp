@@ -28,8 +28,8 @@ from generator import TextGenerator
 
 
 # Server requests
-URL = "http://web:8000/api_mazu/"
-# URL = "https://spaceengineering.io/api_mazu/"
+# URL = "http://web:8000/api_mazu/"
+URL = "https://spaceengineering.io/api_mazu/"
 LOOP = True
 N = 20
 

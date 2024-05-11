@@ -21,8 +21,8 @@ from tensorflow.keras import (
 # Define variables #
 ####################
 
-URL = "http://web:8000/api_sea/"
-# URL = "https://spaceengineering.io/api_sea/"
+# URL = "http://web:8000/api_sea/"
+URL = "https://spaceengineering.io/api_sea/"
 
 # Loop interval
 N = 20
