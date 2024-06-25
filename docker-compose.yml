@@ -76,8 +76,8 @@ services:
     depends_on:
       db:
         condition: service_started
-      web:
-        condition: service_started
+      # web:
+      #   condition: service_started
       #   condition: service_healthy
     command: python mazutalk.py
     env_file:
@@ -85,11 +85,11 @@ services:
     volumes:
       - ./mazutalk/:/app
 
-  connect:
-    build: ./connect
-    command: python connect.py
-    env_file:
-      - ./.env
+  # connect:
+  #   build: ./connect
+  #   command: python connect.py
+  #   env_file:
+  #     - ./.env
 
   db:
     image: postgres:16.2-alpine
