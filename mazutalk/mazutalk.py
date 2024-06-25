@@ -18,7 +18,7 @@ from tensorflow.keras import layers, models, losses, callbacks
 from load_data import (
     load_poems,
     load_phd,
-    load_databricks,
+    # load_databricks,
     conc_data,
     pad_punctuation
 )
@@ -36,7 +36,7 @@ N = 20
 # Training variables
 LOAD_MODEL = True
 TRAIN = False
-EPOCHS = 1
+EPOCHS = 2
 
 VOCAB_SIZE = 100000
 MAX_LEN = 80

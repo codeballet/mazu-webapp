@@ -27,16 +27,16 @@ def load_phd():
 
 
 # Load Swedish translation of Databricks dataset
-def load_databricks():
-    with open("/app/data/databricks/databricks-dolly-15k-sv.json", 'r') as f:
-        translation_bricks = json.load(f)
+# def load_databricks():
+#     with open("/app/data/databricks/databricks-dolly-15k-sv.json", 'r') as f:
+#         translation_bricks = json.load(f)
 
-    return translation_bricks
+#     return translation_bricks
 
 
 # Concatenate all the data to one list
 def conc_data():
-    return load_poems() + load_phd() + load_databricks()
+    return load_poems() + load_phd() # + load_databricks()
 
 
 # Pad the punctuation, to treat them as separate 'words'

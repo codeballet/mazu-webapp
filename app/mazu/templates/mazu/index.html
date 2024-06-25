@@ -1,84 +1,81 @@
-{% extends "mazu/layout.html" %}
-{% load static %}
-
-{% block nav %}
+{% extends "mazu/layout.html" %} {% load static %} {% block nav %}
 
 <nav>
-    <ul class="nav-ul">
-        <li class="nav-li"><a class="active" href="{% url 'mazu:index' %}">Skapa</a></li>
-        <li class="nav-li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
-        <!-- {% if not user.is_authenticated %}
+  <ul class="nav-ul">
+    <li class="nav-li">
+      <a class="active" href="{% url 'mazu:index' %}">Skapa</a>
+    </li>
+    <li class="nav-li"><a href="{% url 'mazu:about' %}">Om Mazu</a></li>
+    <!-- {% if not user.is_authenticated %}
             <li class="nav-li"><a href="{% url 'mazu:register' %}">Registrera</a></li>
             <li class="nav-li nav-login"><a href="{% url 'mazu:login' %}">Logga in</a></li>
         {% endif %}
         {% if user.is_authenticated %}
             <li class="nav-li nav-logout"><a href="{% url 'mazu:logout' %}">Logga ut</a></li>
         {% endif %} -->
-    </ul>
+  </ul>
 </nav>
 
-{% endblock nav %}
+{% endblock nav %} {% block heading %}
+<h1>Skapa med Mazu</h1>
+{% endblock heading %} {% block content %}
 
+<div class="flex-container weather">
+  <form action="{% url 'mazu:weather' %}" method="post">
+    {% csrf_token %}
+    <input
+      class="button"
+      id="button-zero"
+      type="submit"
+      name="zero"
+      value="Nature"
+    />
+    <input
+      class="button"
+      id="button-one"
+      type="submit"
+      name="one"
+      value="Artefact"
+    />
+  </form>
+</div>
 
-{% block heading %}
-    <h1>Skapa med Mazu</h1>
-{% endblock heading %}
+{% if prompt == '' and answer == '' %}
 
+<div class="flex-container" id="index-form-empty">
+  <form action="{% url 'mazu:message' %}" method="post">
+    {% csrf_token %} {{ form }}
+    <input class="button" id="button-send" type="submit" value="Sänd" />
+  </form>
+</div>
 
-{% block content %}
+{% elif prompt != '' and answer == '' %}
 
-    <div class="flex-container weather">
-        <form action="{% url 'mazu:weather' %}" method="post">
-            {% csrf_token %}
-            <input class="button" id="button-zero" type="submit" name="zero" value="Lågvatten">
-            <input class="button" id="button-one" type="submit" name="one" value="Högvatten">
-        </form>
-    </div>
+<div class="flex-container" id="index-thinking">
+  <h3>Mazu funderar på ditt meddelande "{{ prompt }}"...</h3>
+</div>
+<div class="flex-container" id="index-loader">
+  <div class="loader"></div>
+</div>
 
-    {% if prompt == '' and answer == '' %}
+{% else %}
 
-        <div class="flex-container" id="index-form-empty">
-            <form action="{% url 'mazu:message' %}" method="post">
-                {% csrf_token %}
-                {{ form }}
-                <input class="button" id="button-send" type="submit" value="Sänd">
-            </form>
-        </div>
+<div class="flex-container" id="index-form-answer">
+  <form action="{% url 'mazu:message' %}" method="post">
+    {% csrf_token %} {{ form }}
+    <input class="button" id="button-send" type="submit" value="Sänd" />
+  </form>
+</div>
 
-    {% elif prompt != '' and answer == '' %}
+<div id="index-answer">
+  <div class="flex-container">
+    <h3>Mazu svarade:</h3>
+  </div>
+  <div class="flex-container">
+    <h3>"{{ prompt }} {{ answer }}"</h3>
+  </div>
+</div>
 
-        <div class="flex-container" id="index-thinking">
-            <h3>
-                Mazu funderar på ditt meddelande "{{ prompt }}"...
-            </h3>
-        </div>
-        <div class="flex-container" id="index-loader">
-            <div class="loader"></div>
-        </div>
-
-    {% else %}
-
-        <div class="flex-container" id="index-form-answer">
-            <form action="{% url 'mazu:message' %}" method="post">
-                {% csrf_token %}
-                {{ form }}
-                <input class="button" id="button-send" type="submit" value="Sänd">
-            </form>
-        </div>
-
-        <div id="index-answer">
-            <div class="flex-container">
-                <h3>Mazu svarade:</h3>
-            </div>
-            <div class="flex-container">
-                <h3>"{{ prompt }} {{ answer }}"</h3>
-            </div>
-        </div>
-
-    {% endif %}
-
-{% endblock content %}
-
-{% block script %}
-    <script src="{% static 'mazu/index.js' %}"></script>
+{% endif %} {% endblock content %} {% block script %}
+<script src="{% static 'mazu/index.js' %}"></script>
 {% endblock script %}

@@ -1,21 +1,20 @@
 services:
-
-  web:
-    build: ./app
-    command: python manage.py runserver 0.0.0.0:8000
-    # command: python -m gunicorn mazuproject.asgi:application -k uvicorn.workers.UvicornWorker --reload --bind 0.0.0.0:8000
-    volumes:
-      - ./app/:/usr/src/app/
-    ports:
-      - 8000:8000
-    env_file:
-      - ./.env.dev
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://web:8000"]
-    #   interval: 5s
-    #   timeout: 3s
-    #   retries: 5
-    #   start_period: 10s
+  # web:
+  #   build: ./app
+  #   command: python manage.py runserver 0.0.0.0:8000
+  #   # command: python -m gunicorn mazuproject.asgi:application -k uvicorn.workers.UvicornWorker --reload --bind 0.0.0.0:8000
+  #   volumes:
+  #     - ./app/:/usr/src/app/
+  #   ports:
+  #     - 8000:8000
+  #   env_file:
+  #     - ./.env.dev
+  # healthcheck:
+  #   test: ["CMD", "curl", "-f", "http://web:8000"]
+  #   interval: 5s
+  #   timeout: 3s
+  #   retries: 5
+  #   start_period: 10s
 
   vocoder:
     build: ./vocoder
@@ -58,10 +57,10 @@ services:
   #             count: 1
   #             capabilities: [gpu]
   #   ports:
-  #       - "$JUPYTER_PORT:$JUPYTER_PORT"
-  #       - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
+  #     - "$JUPYTER_PORT:$JUPYTER_PORT"
+  #     - "$TENSORBOARD_PORT:$TENSORBOARD_PORT"
   #   env_file:
-  #    - ./.env
+  #     - ./.env
   #   entrypoint: jupyter lab --ip 0.0.0.0 --port=$JUPYTER_PORT --no-browser --allow-root
 
   mazusea:
@@ -77,20 +76,20 @@ services:
     depends_on:
       db:
         condition: service_started
-      # web:
-      #   condition: service_started
-        # condition: service_healthy
+      web:
+        condition: service_started
+      #   condition: service_healthy
     command: python mazutalk.py
     env_file:
       - ./.env
     volumes:
       - ./mazutalk/:/app
 
-  # connect:
-  #   build: ./connect
-  #   command: python connect.py
-  #   env_file:
-  #     - ./.env
+  connect:
+    build: ./connect
+    command: python connect.py
+    env_file:
+      - ./.env
 
   db:
     image: postgres:16.2-alpine
@@ -101,8 +100,6 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-
-
 volumes:
   db:
   soundfiles:

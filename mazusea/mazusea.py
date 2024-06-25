@@ -24,6 +24,10 @@ from tensorflow.keras import (
 # URL = "http://web:8000/api_sea/"
 URL = "https://spaceengineering.io/api_sea/"
 
+# Image seeds
+SEED_A = 34
+SEED_B = 22
+
 # Loop interval
 N = 20
 
@@ -331,9 +335,9 @@ def spherical_interpolation(a, b, t):
     return np.sin(t * math.pi / 2) * a + np.cos(t * math.pi / 2) * b
 
 # Generate noise distributions
-tf.random.set_seed(18)
+tf.random.set_seed(SEED_A)
 n1 = tf.random.normal(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
-tf.random.set_seed(5)
+tf.random.set_seed(SEED_B)
 n2 = tf.random.normal(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
 
 # Stack the distributinos together, adding a batch dimension
